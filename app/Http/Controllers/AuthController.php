@@ -1,0 +1,140 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Postmark\PostmarkClient;
+use PHPMailer\PHPMailer\PHPMailer;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+class AuthController extends Controller
+{
+    //
+    public function login()
+    {
+        return view('auth.login');
+    }
+
+    public function loginProcess(Request $request)
+    {
+        // Validasi
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|min:6',
+        ]);
+
+        // Cek login
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $request->session()->regenerate();
+            return redirect()->intended('/');
+        }
+
+        return back()->with('info', 'Email atau password salah.');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login');
+    }
+
+    public function register()
+    {
+        return view('auth.register');
+    }
+
+    public function forgotPassword()
+    {
+        return view('auth.forgot-password');
+    }
+
+    public function sendResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ],
+        [
+            'email.exists' => 'Email tidak ditemukan'
+        ]);
+
+        $token = Str::random(64);
+
+        DB::table('password_resets')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'token' => hash('sha256', $token),
+                'created_at' => now(),
+            ]
+        );
+
+        $user = User::where('email', $request->email)->first();
+
+        $resetLink = url('/reset-password/'.$token.'?email='.$request->email);
+
+        // === KIRIM EMAIL ===
+        $mail = new PHPMailer(true);
+
+        $mail->isSMTP();
+        $mail->Host       = 'ecovera.id';
+        $mail->SMTPAuth   = true;
+        $mail->AuthType   = 'LOGIN';
+        $mail->Username   = 'no-reply@ecovera.id';
+        $mail->Password   = 'sims100%';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port       = 587;
+
+        $html = view('auth.emails.forgot-password', [
+            'name'      => $user->name,
+            'resetLink' => $resetLink
+        ])->render();
+
+        $mail->setFrom('no-reply@ecovera.id', 'Ecovera');
+        $mail->addAddress($request->email);
+        $mail->isHTML(true);
+        $mail->Subject = 'Reset Password';
+        $mail->Body    = $html;
+        $mail->send();
+
+        return back()->with('success', 'Link reset password telah dikirim.');
+    }
+
+    public function resetPassword($token)
+    {
+        return view('auth.reset-password', compact('token'));
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email|exists:users,email',
+            'password' => 'required|min:8|confirmed',
+            'token'    => 'required',
+        ]);
+
+        $record = DB::table('password_resets')
+            ->where('email', $request->email)
+            ->where('token', hash('sha256', $request->token))
+            ->first();
+
+        if (!$record) {
+
+            return back()->withErrors(['info' => 'Token tidak valid atau sudah kadaluarsa']);
+        }
+
+        // Update password
+        User::where('email', $request->email)
+            ->update(['password' => Hash::make($request->password)]);
+
+        // Hapus token
+        DB::table('password_resets')->where('email', $request->email)->delete();
+
+        return redirect('/login')->with('success', 'Password berhasil diubah.');
+    }
+}
