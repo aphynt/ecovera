@@ -171,8 +171,11 @@
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0" data-bs-toggle="dropdown" href="#" role="button"
                         aria-haspopup="false" aria-expanded="false">
-                        <img src="{{ asset('admin/dist') }}/assets/images/users/user-5.jpg" alt="user-image"
-                            class="rounded-circle">
+                        <img src="{{ Auth::user()->avatar
+                                ? asset('storage/'.Auth::user()->avatar)
+                                : asset('logo/logo.png') }}"
+                             class="rounded-circle ">
+
                         <span class="pro-user-name ms-1">
                             {{ Auth::user()->name }} <i class="mdi mdi-chevron-down"></i>
                         </span>

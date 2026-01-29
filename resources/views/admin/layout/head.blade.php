@@ -16,8 +16,11 @@
         <!-- Icons -->
         <link href="{{ asset('admin/dist') }}/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
 
-    </head>
-    <body data-menu-color="light" data-sidebar="default"
+        {{-- Sweetalert2 --}}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    </head>
+    <body data-menu-color="light" data-sidebar="default">
+        @include('sweetalert2')
         <!-- Begin page -->
         <div id="app-layout">

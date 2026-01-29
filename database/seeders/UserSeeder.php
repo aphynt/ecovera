@@ -25,6 +25,7 @@ class UserSeeder extends Seeder
             'role' => 'admin',
             'phone' => '085213067944',
             'is_active' => true,
+            'avatar' => null,
         ]);
 
         //Seller
@@ -36,6 +37,7 @@ class UserSeeder extends Seeder
             'role' => 'seller',
             'phone' => '085213067944',
             'is_active' => true,
+            'avatar' => null,
         ]);
 
         //Buyer
@@ -47,6 +49,7 @@ class UserSeeder extends Seeder
             'role' => 'buyer',
             'phone' => '085213067944',
             'is_active' => true,
+            'avatar' => null,
         ]);
 
 

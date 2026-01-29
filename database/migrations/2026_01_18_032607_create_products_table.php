@@ -16,13 +16,14 @@ return new class extends Migration
             $table->string('uuid')->index();
             $table->foreignId('store_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
+            $table->boolean('is_active')->default(true);
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->decimal('price', 12, 2);
             $table->integer('stock');
             $table->integer('weight')->nullable();
-            $table->enum('status', ['active','inactive'])->default('active');
+            $table->enum('status', ['active','inactive'])->default('inactive');
             $table->timestamps();
         });
     }

@@ -1,3 +1,15 @@
+<footer class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col fs-13 text-muted text-center">
+                © 2026 {{ config('app.name') }} — Hak cipta dilindungi.
+            </div>
+        </div>
+    </div>
+</footer>
+    <!-- end Footer -->
+
+</div>
 </div>
         <!-- END wrapper -->
 

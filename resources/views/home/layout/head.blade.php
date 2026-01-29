@@ -27,4 +27,9 @@
     <link rel="preload" href="{{ asset('home') }}/assets/css/theme.min.css" as="style">
     {{-- <link rel="preload" href="{{ asset('home') }}/assets/css/theme.rtl.min.css" as="style"> --}}
     <link rel="stylesheet" href="{{ asset('home') }}/assets/css/theme.min.css" id="theme-styles">
+
+    {{-- Sweetalert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
+

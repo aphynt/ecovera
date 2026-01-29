@@ -21,19 +21,26 @@ class AuthController extends Controller
 
     public function loginProcess(Request $request)
     {
-        // Validasi
         $request->validate([
             'email'    => 'required|email',
             'password' => 'required|min:6',
+        ], [
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 6 karakter.',
         ]);
 
-        // Cek login
-        if (Auth::attempt($request->only('email', 'password'))) {
+        if (Auth::attempt([
+            'email' => $request->email,
+            'password' => $request->password,
+            'is_active' => true,
+        ])) {
             $request->session()->regenerate();
             return redirect()->intended('/');
         }
 
-        return back()->with('info', 'Email atau password salah.');
+        return back()->with('info', 'Email, password salah, atau akun belum aktif.');
     }
 
     public function logout(Request $request)
