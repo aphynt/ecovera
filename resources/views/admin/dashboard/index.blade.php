@@ -938,6 +938,5 @@
         </div> <!-- container-fluid -->
     </div> <!-- content -->
 
-    <!-- Footer Start -->
 
 @include('admin.layout.footer')

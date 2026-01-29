@@ -92,7 +92,6 @@ class ProductController extends Controller
                 'status'      => 'inactive',
             ]);
 
-            // SIMPAN GAMBAR (BANYAK)
             if ($request->hasFile('images')) {
 
                 foreach ($request->file('images') as $index => $image) {
@@ -107,7 +106,6 @@ class ProductController extends Controller
                 }
             }
 
-            // SIMPAN VIDEO (SATU SAJA)
             if ($request->hasFile('video')) {
 
                 $videoPath = $request->file('video')
@@ -197,12 +195,8 @@ class ProductController extends Controller
                     }
                 }
 
-                /* =======================
-                * UPDATE VIDEO (SINGLE)
-                * ======================= */
                 if ($request->hasFile('video')) {
 
-                    // Hapus video lama jika ada
                     if ($product->video_url
                         && Storage::disk('public')->exists($product->video_url)) {
                         Storage::disk('public')->delete($product->video_url);
@@ -228,7 +222,6 @@ class ProductController extends Controller
     {
         $product = Products::where('uuid', $uuid)->firstOrFail();
 
-        // Guard: cegah verifikasi ulang
         if ($product->status === 'active') {
             return redirect()
                 ->back()

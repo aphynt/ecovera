@@ -85,7 +85,6 @@ class AuthController extends Controller
 
         $resetLink = url('/reset-password/'.$token.'?email='.$request->email);
 
-        // === KIRIM EMAIL ===
         $mail = new PHPMailer(true);
 
         $mail->isSMTP();
@@ -135,11 +134,9 @@ class AuthController extends Controller
             return back()->withErrors(['info' => 'Token tidak valid atau sudah kadaluarsa']);
         }
 
-        // Update password
         User::where('email', $request->email)
             ->update(['password' => Hash::make($request->password)]);
 
-        // Hapus token
         DB::table('password_resets')->where('email', $request->email)->delete();
 
         return redirect('/login')->with('success', 'Password berhasil diubah.');

@@ -57,18 +57,14 @@ class CategoryProductController extends Controller
         try {
             if ($request->hasFile('image')) {
 
-                // hapus gambar lama
                 if ($category->image_url && Storage::disk('public')->exists($category->image_url)) {
                     Storage::disk('public')->delete($category->image_url);
                 }
-
-                // simpan gambar baru
                 $path = $request->file('image')->storeAs('categories', uniqid() . '.' . $request->image->extension(), 'public');
 
                 $category->image_url = $path;
             }
 
-            // update data lain
             $category->update([
                 'name' => $validated['name'],
                 'slug' => Str::slug($validated['name']),
@@ -87,12 +83,10 @@ class CategoryProductController extends Controller
         $category = CategoryProduct::findOrFail($id);
 
         try {
-            // hapus gambar dari storage
             if ($category->image_url && Storage::disk('public')->exists($category->image_url)) {
                 Storage::disk('public')->delete($category->image_url);
             }
 
-            // hapus data
             $category->delete();
 
             return redirect()->back()->with('success', 'Kategori produk berhasil dihapus');

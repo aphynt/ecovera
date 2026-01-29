@@ -13,7 +13,6 @@
                 @method('PUT')
 
                 <div class="modal-body">
-                    <!-- Nama -->
                     <div class="mb-3">
                         <label class="form-label">Nama</label>
                         <input type="text"
@@ -23,7 +22,6 @@
                                required>
                     </div>
 
-                    <!-- Gambar -->
                     <div class="mb-3">
                         <label class="form-label">Gambar</label>
 
@@ -41,8 +39,6 @@
                             Kosongkan jika tidak ingin mengganti gambar
                         </small>
                     </div>
-
-                    <!-- STATUS AKTIF -->
                     <div class="form-check form-switch">
                         <input class="form-check-input"
                                type="checkbox"

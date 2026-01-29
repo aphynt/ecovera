@@ -67,7 +67,6 @@ class CheckoutController extends Controller
                 return back()->with('info', 'Keranjang tidak ditemukan.');
             }
 
-            // === CART ITEMS + SELLER ===
             $cartItems = DB::table('cart_items')
                 ->join('products', 'products.id', '=', 'cart_items.product_id')
                 ->join('stores', 'stores.id', '=', 'products.store_id')
@@ -88,7 +87,6 @@ class CheckoutController extends Controller
             $shippingCost = 0;
             $grandTotal  = $totalAmount + $shippingCost;
 
-            // === CREATE ORDER ===
             $orderId = DB::table('orders')->insertGetId([
                 'uuid'           => Str::uuid(),
                 'order_code'     => 'ORD-' . now()->timestamp,
@@ -115,9 +113,6 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            // =====================================================
-            // =============== COD (CASH ON DELIVERY) ==============
-            // =====================================================
             if ($request->payment_method === 'cod') {
 
                 DB::table('payments')->insert([
@@ -145,9 +140,6 @@ class CheckoutController extends Controller
                     ->with('success', 'Pesanan COD berhasil dibuat.');
             }
 
-            // =====================================================
-            // ==================== MIDTRANS =======================
-            // =====================================================
             Config::$serverKey    = config('midtrans.server_key');
             Config::$isProduction = config('midtrans.is_production');
             Config::$isSanitized  = true;

@@ -11,13 +11,10 @@ use Illuminate\Support\Str;
 
 class MailerController extends Controller {
 
-    // =============== [ Email ] ===================
     public function email() {
         return view("email");
     }
 
-
-    // ========== [ Compose Email ] ================
     public function sendResetLink(Request $request)
     {
         $request->validate([
