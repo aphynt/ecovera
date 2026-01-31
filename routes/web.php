@@ -15,13 +15,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Mail;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 //Cart
@@ -38,6 +34,20 @@ Route::post('/login', [AuthController::class, 'loginProcess'])->name('login.proc
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/register', [AuthController::class, 'registerProcess'])->name('register.process');
+
+// Email Verification
+Route::get('/email/verify', [AuthController::class, 'verifyEmailPrompt'])
+    ->middleware('auth')
+    ->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmailHandler'])
+    ->middleware(['auth', 'signed'])
+    ->name('verification.verify');
+
+Route::post('/email/verification-notification', [AuthController::class, 'verifyEmailResend'])
+    ->middleware(['auth', 'throttle:6,1'])
+    ->name('verification.send');
 
 //Reset Password
 Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgotPassword');
@@ -94,8 +104,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::patch('/users/{id}', [UsersController::class, 'update'])->name('users.update');
     Route::patch('/users/toggle/{id}', [UsersController::class, 'toggle'])->name('users.toggle');
 
-     //Profile
+    //Profile
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::put('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
+
+    // Chat
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
+    Route::post('/chat/{id}', [ChatController::class, 'store'])->name('chat.store');
 });

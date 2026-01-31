@@ -31,8 +31,7 @@
                                     <h2 class="display-4 pb-2 pb-md-3 pb-lg-4">
                                         Produk Sehat Tersedia untuk Semua Orang
                                     </h2>
-                                    <a class="btn btn-lg btn-outline-light rounded-pill"
-                                        href="#">Belanja sekarang</a>
+                                    <a class="btn btn-lg btn-outline-light rounded-pill" href="#">Belanja sekarang</a>
                                 </div>
                             </div>
                         </div>
@@ -51,8 +50,7 @@
                                     <h2 class="display-4 pb-2 pb-md-3 pb-lg-4">
                                         Produk organik dari sayuran
                                     </h2>
-                                    <a class="btn btn-lg btn-outline-light rounded-pill"
-                                        href="#">Belanja sekarang</a>
+                                    <a class="btn btn-lg btn-outline-light rounded-pill" href="#">Belanja sekarang</a>
                                 </div>
                             </div>
                         </div>
@@ -71,8 +69,7 @@
                                     <h2 class="display-4 pb-2 pb-md-3 pb-lg-4">
                                         Barang yang tidak terpakai didaur ulang
                                     </h2>
-                                    <a class="btn btn-lg btn-outline-light rounded-pill"
-                                        href="#">Belanja sekarang</a>
+                                    <a class="btn btn-lg btn-outline-light rounded-pill" href="#">Belanja sekarang</a>
                                 </div>
                             </div>
                         </div>
@@ -196,22 +193,22 @@
                 <h2 class="h3 border-bottom pb-3 pb-md-4 mb-4">Categories</h2>
                 <div class="row nav g-3 g-sm-4">
                     @foreach ($data['category'] as $category)
-                    <div class="col-sm-6 col-md-4 col-lg-12 d-flex">
-                        <div class="position-relative d-flex min-w-0 align-items-center">
-                            <div class="d-flex flex-shrink-0 align-items-center justify-content-center bg-body-tertiary rounded-circle"
-                                style="width: 56px; height: 56px">
-                                <img src="{{ asset('storage/'.$category->image_url) }}" width="40"
-                                    alt="Image">
-                            </div>
-                            <div class="min-w-0 ps-3">
-                                <a class="nav-link animate-underline stretched-link fs-base fw-semibold p-0 mb-1"
-                                    href="shop-catalog-grocery.html">
-                                    <span class="animate-target text-truncate">{{ $category->name }}</span>
-                                </a>
-                                <div class="fs-xs fw-normal text-body-secondary">{{ $category->products_count }} produk</div>
+                        <div class="col-sm-6 col-md-4 col-lg-12 d-flex">
+                            <div class="position-relative d-flex min-w-0 align-items-center">
+                                <div class="d-flex flex-shrink-0 align-items-center justify-content-center bg-body-tertiary rounded-circle"
+                                    style="width: 56px; height: 56px">
+                                    <img src="{{ asset('storage/' . $category->image_url) }}" width="40" alt="Image">
+                                </div>
+                                <div class="min-w-0 ps-3">
+                                    <a class="nav-link animate-underline stretched-link fs-base fw-semibold p-0 mb-1"
+                                        href="shop-catalog-grocery.html">
+                                        <span class="animate-target text-truncate">{{ $category->name }}</span>
+                                    </a>
+                                    <div class="fs-xs fw-normal text-body-secondary">{{ $category->products_count }} produk
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     @endforeach
 
                 </div>
@@ -231,55 +228,61 @@
                 <!-- Products grid -->
                 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-3 row-cols-xl-4 g-4">
                     @foreach ($data['popularProducts'] as $product)
-                        <div class="col">
-                            <div class="card product-card h-100 bg-transparent border-0 shadow-none">
+                                    <div class="col">
+                                        <div class="card product-card h-100 bg-transparent border-0 shadow-none">
 
-                                <div class="position-relative z-2">
-                                    <button type="button"
-                                        class="btn btn-icon btn-sm btn-secondary animate-pulse fs-sm bg-body border-0 position-absolute top-0 end-0 z-2 mt-1 mt-sm-2 me-1 me-sm-2">
-                                        <i class="ci-heart animate-target"></i>
-                                    </button>
+                                            <div class="position-relative z-2">
+                                                <button type="button"
+                                                    class="btn btn-icon btn-sm btn-secondary animate-pulse fs-sm bg-body border-0 position-absolute top-0 end-0 z-2 mt-1 mt-sm-2 me-1 me-sm-2">
+                                                    <i class="ci-heart animate-target"></i>
+                                                </button>
 
-                                    <a class="d-block p-2 p-lg-3" href="#">
-                                        <div class="ratio" style="--cz-aspect-ratio: calc(160 / 191 * 100%)">
-                                            <img
-                                                src="{{ $product->primaryImage
-                                                        ? asset('storage/'.$product->primaryImage->image_url)
-                                                        : asset('logo/logo.png') }}"
-                                                alt="{{ $product->name }}">
+                                                <a class="d-block p-2 p-lg-3" href="#">
+                                                    <div class="ratio" style="--cz-aspect-ratio: calc(160 / 191 * 100%)">
+                                                        <img src="{{ $product->primaryImage
+                        ? asset('storage/' . $product->primaryImage->image_url)
+                        : asset('logo/logo.png') }}" alt="{{ $product->name }}">
+                                                    </div>
+                                                </a>
+
+                                                <!-- Button Add to Cart -->
+                                                <div class="position-absolute w-100 start-0 bottom-0 px-2 px-lg-3 pb-2 pb-lg-3">
+                                                    <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-primary w-100 btn-sm">
+                                                            <i class="ci-cart me-1"></i>
+                                                            Masukkan ke Keranjang
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+
+                                            <div class="card-body pt-0 px-1 px-md-2 px-lg-3 pb-2">
+                                                <div class="h6 mb-2">
+                                                    Rp {{ number_format($product->price, 0, ',', '.') }}
+                                                </div>
+                                                <h3 class="fs-sm lh-base mb-0">
+                                                    <a class="hover-effect-underline fw-normal" href="#">
+                                                        {{ $product->name }}
+                                                    </a>
+                                                </h3>
+
+                                                @if($product->store && $product->store->user_id)
+                                                    <div class="mt-2">
+                                                        <a href="{{ route('admin.chat.show', $product->store->user_id) }}"
+                                                            class="btn btn-sm btn-outline-info w-100">
+                                                            <i class="ci-chat me-1"></i> Chat Penjual
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            <div class="fs-xs text-body-secondary px-1 px-md-2 px-lg-3 pb-2 pb-md-3">
+                                                {{ $product->weight }} g
+                                            </div>
+
                                         </div>
-                                    </a>
-
-                                    <!-- Button Add to Cart -->
-                                    <div class="position-absolute w-100 start-0 bottom-0 px-2 px-lg-3 pb-2 pb-lg-3">
-                                        <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit"
-                                                class="btn btn-primary w-100 btn-sm">
-                                                <i class="ci-cart me-1"></i>
-                                                Masukkan ke Keranjang
-                                            </button>
-                                        </form>
                                     </div>
-                                </div>
-
-                                <div class="card-body pt-0 px-1 px-md-2 px-lg-3 pb-2">
-                                    <div class="h6 mb-2">
-                                        Rp {{ number_format($product->price, 0, ',', '.') }}
-                                    </div>
-                                    <h3 class="fs-sm lh-base mb-0">
-                                        <a class="hover-effect-underline fw-normal" href="#">
-                                            {{ $product->name }}
-                                        </a>
-                                    </h3>
-                                </div>
-
-                                <div class="fs-xs text-body-secondary px-1 px-md-2 px-lg-3 pb-2 pb-md-3">
-                                    {{ $product->weight }} g
-                                </div>
-
-                            </div>
-                        </div>
                     @endforeach
                 </div>
 
@@ -300,18 +303,18 @@
 
 </main>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
-    const ACCESS_KEY = 'anWyMYZz3lw4T-5lJdU9_Ed4zi-EOsIY6GI-gPSpPEc';
-    const container = document.getElementById('eco-articles');
+        const ACCESS_KEY = 'anWyMYZz3lw4T-5lJdU9_Ed4zi-EOsIY6GI-gPSpPEc';
+        const container = document.getElementById('eco-articles');
 
-    fetch(`https://api.unsplash.com/search/photos?query=recycled%20eco%20product&per_page=4&client_id=${ACCESS_KEY}`)
-        .then(res => res.json())
-        .then(data => {
-            container.innerHTML = '';
+        fetch(`https://api.unsplash.com/search/photos?query=recycled%20eco%20product&per_page=4&client_id=${ACCESS_KEY}`)
+            .then(res => res.json())
+            .then(data => {
+                container.innerHTML = '';
 
-            data.results.forEach(item => {
-                container.innerHTML += `
+                data.results.forEach(item => {
+                    container.innerHTML += `
                     <div class="col-md-6 col-lg-3 mb-4">
                         <article class="h-100">
                             <a href="${item.links.html}" target="_blank" class="d-block mb-3">
@@ -340,14 +343,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         </article>
                     </div>
                 `;
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                container.innerHTML = `<p class="text-muted">Gagal memuat konten.</p>`;
             });
-        })
-        .catch(err => {
-            console.error(err);
-            container.innerHTML = `<p class="text-muted">Gagal memuat konten.</p>`;
-        });
 
-});
+    });
 </script>
 
 

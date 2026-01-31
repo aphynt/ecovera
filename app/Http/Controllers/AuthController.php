@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Postmark\PostmarkClient;
@@ -22,7 +24,7 @@ class AuthController extends Controller
     public function loginProcess(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required|min:6',
         ], [
             'email.required' => 'Email wajib diisi.',
@@ -31,11 +33,13 @@ class AuthController extends Controller
             'password.min' => 'Password minimal 6 karakter.',
         ]);
 
-        if (Auth::attempt([
-            'email' => $request->email,
-            'password' => $request->password,
-            'is_active' => true,
-        ])) {
+        if (
+            Auth::attempt([
+                'email' => $request->email,
+                'password' => $request->password,
+                'is_active' => true,
+            ])
+        ) {
             $request->session()->regenerate();
             return redirect()->intended('/');
         }
@@ -57,6 +61,65 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
+    public function registerProcess(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'nim' => 'required|string|max:50',
+            'instansi' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:buyer,seller',
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'nim.required' => 'NIM wajib diisi.',
+            'instansi.required' => 'Instansi wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'role.required' => 'Role wajib dipilih.',
+            'role.in' => 'Role tidak valid.',
+        ]);
+
+        $user = User::create([
+            'uuid' => Str::uuid(),
+            'name' => $request->name,
+            'nim' => $request->nim,
+            'instansi' => $request->instansi,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'is_active' => false,
+        ]);
+
+        // event(new Registered($user));
+
+        // Auth::login($user);
+
+        return redirect('/login')->with('info', 'Registrasi berhasil. Akun Anda menunggu persetujuan admin.');
+    }
+
+    public function verifyEmailPrompt()
+    {
+        return view('auth.verify-email');
+    }
+
+    public function verifyEmailHandler(EmailVerificationRequest $request)
+    {
+        $request->fulfill();
+
+        return redirect('/dashboard')->with('success', 'Email berhasil diverifikasi!');
+    }
+
+    public function verifyEmailResend(Request $request)
+    {
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('message', 'Link verifikasi telah dikirim ulang!');
+    }
+
     public function forgotPassword()
     {
         return view('auth.forgot-password');
@@ -64,12 +127,14 @@ class AuthController extends Controller
 
     public function sendResetLink(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email|exists:users,email',
-        ],
-        [
-            'email.exists' => 'Email tidak ditemukan'
-        ]);
+        $request->validate(
+            [
+                'email' => 'required|email|exists:users,email',
+            ],
+            [
+                'email.exists' => 'Email tidak ditemukan'
+            ]
+        );
 
         $token = Str::random(64);
 
@@ -83,21 +148,21 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        $resetLink = url('/reset-password/'.$token.'?email='.$request->email);
+        $resetLink = url('/reset-password/' . $token . '?email=' . $request->email);
 
         $mail = new PHPMailer(true);
 
         $mail->isSMTP();
-        $mail->Host       = 'ecovera.id';
-        $mail->SMTPAuth   = true;
-        $mail->AuthType   = 'LOGIN';
-        $mail->Username   = 'no-reply@ecovera.id';
-        $mail->Password   = 'sims100%';
+        $mail->Host = env('MAIL_HOST', 'mx.emailarray.com');
+        $mail->SMTPAuth = true;
+        $mail->AuthType = 'LOGIN';
+        $mail->Username = env('MAIL_USERNAME', 'no-reply@ecovera.id');
+        $mail->Password = env('MAIL_PASSWORD');
         $mail->SMTPSecure = 'tls';
-        $mail->Port       = 587;
+        $mail->Port = env('MAIL_PORT', 587);
 
         $html = view('auth.emails.forgot-password', [
-            'name'      => $user->name,
+            'name' => $user->name,
             'resetLink' => $resetLink
         ])->render();
 
@@ -105,7 +170,7 @@ class AuthController extends Controller
         $mail->addAddress($request->email);
         $mail->isHTML(true);
         $mail->Subject = 'Reset Password';
-        $mail->Body    = $html;
+        $mail->Body = $html;
         $mail->send();
 
         return back()->with('success', 'Link reset password telah dikirim.');
@@ -119,9 +184,9 @@ class AuthController extends Controller
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email|exists:users,email',
+            'email' => 'required|email|exists:users,email',
             'password' => 'required|min:8|confirmed',
-            'token'    => 'required',
+            'token' => 'required',
         ]);
 
         $record = DB::table('password_resets')

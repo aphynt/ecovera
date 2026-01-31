@@ -395,10 +395,8 @@
 
             <!-- Delivery options toggle visible on screens > 1200px wide (xl breakpoint) -->
             <div class="nav me-4 me-xxl-5 d-none d-xl-block">
-                <a class="nav-link flex-column align-items-start animate-underline p-0"
-                href="#deliveryOptions"
-                data-bs-toggle="offcanvas"
-                aria-controls="deliveryOptions">
+                <a class="nav-link flex-column align-items-start animate-underline p-0" href="#deliveryOptions"
+                    data-bs-toggle="offcanvas" aria-controls="deliveryOptions">
                     <div class="h6 fs-sm mb-0">Pengiriman</div>
                     <div class="d-flex align-items-center fs-sm fw-normal text-body">
                         <span class="animate-target text-nowrap">Atur alamat pengiriman</span>
@@ -461,13 +459,30 @@
 
                 <!-- Delivery options button visible on screens < 1200px wide (xl breakpoint) -->
                 <button type="button"
-                        class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-scale d-xl-none"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#deliveryOptions"
-                        aria-controls="deliveryOptions"
-                        aria-label="Buka pilihan alamat pengiriman">
+                    class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-scale d-xl-none"
+                    data-bs-toggle="offcanvas" data-bs-target="#deliveryOptions" aria-controls="deliveryOptions"
+                    aria-label="Buka pilihan alamat pengiriman">
                     <i class="ci-map-pin animate-target"></i>
                 </button>
+
+                @if(Auth::check())
+                    @php
+                        $unreadMessages = \App\Models\Message::where('receiver_id', Auth::id())
+                            ->where('is_read', false)
+                            ->count();
+                    @endphp
+                    <a class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-scale position-relative d-none d-md-inline-flex me-2"
+                        href="{{ route('admin.chat.index') }}">
+                        <i class="ci-chat animate-target"></i>
+                        @if($unreadMessages > 0)
+                            <span class="position-absolute top-0 start-100 badge fs-xs text-bg-danger rounded-pill ms-n3 z-2"
+                                style="--cz-badge-padding-y: .25em; --cz-badge-padding-x: .42em">
+                                {{ $unreadMessages }}
+                            </span>
+                        @endif
+                        <span class="visually-hidden">Chat</span>
+                    </a>
+                @endif
 
                 <!-- Account button visible on screens > 768px wide (md breakpoint) -->
                 <a class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-shake d-none d-md-inline-flex"
@@ -487,22 +502,20 @@
                     }
                 @endphp
                 @if(Auth::check())
-                <button type="button"
-                    class="btn btn-icon fs-xl btn-outline-secondary position-relative border-0 rounded-circle animate-scale"
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#shoppingCart"
-                    aria-controls="shoppingCart"
-                    aria-label="Shopping cart">
+                    <button type="button"
+                        class="btn btn-icon fs-xl btn-outline-secondary position-relative border-0 rounded-circle animate-scale"
+                        data-bs-toggle="offcanvas" data-bs-target="#shoppingCart" aria-controls="shoppingCart"
+                        aria-label="Shopping cart">
 
-                    @if($cartCount > 0)
-                        <span class="position-absolute top-0 start-100 badge fs-xs text-bg-primary rounded-pill ms-n3 z-2"
-                            style="--cz-badge-padding-y: .25em; --cz-badge-padding-x: .42em">
-                            {{ $cartCount }}
-                        </span>
-                    @endif
+                        @if($cartCount > 0)
+                            <span class="position-absolute top-0 start-100 badge fs-xs text-bg-primary rounded-pill ms-n3 z-2"
+                                style="--cz-badge-padding-y: .25em; --cz-badge-padding-x: .42em">
+                                {{ $cartCount }}
+                            </span>
+                        @endif
 
-                    <i class="ci-shopping-cart animate-target"></i>
-                </button>
+                        <i class="ci-shopping-cart animate-target"></i>
+                    </button>
                 @endif
             </div>
         </div>
