@@ -37,7 +37,16 @@ class AuthController extends Controller
             'is_active' => true,
         ])) {
             $request->session()->regenerate();
-            return redirect()->intended('/');
+
+            $user = Auth::user();
+
+            // Redirect based on user role
+            if ($user->role === 'admin' || $user->role === 'seller') {
+                return redirect()->intended('/admin/dashboard');
+            } else {
+                // For buyer, redirect to home
+                return redirect()->intended('/');
+            }
         }
 
         return back()->with('info', 'Email, password salah, atau akun belum aktif.');
@@ -64,12 +73,14 @@ class AuthController extends Controller
 
     public function sendResetLink(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email|exists:users,email',
-        ],
-        [
-            'email.exists' => 'Email tidak ditemukan'
-        ]);
+        $request->validate(
+            [
+                'email' => 'required|email|exists:users,email',
+            ],
+            [
+                'email.exists' => 'Email tidak ditemukan'
+            ]
+        );
 
         $token = Str::random(64);
 
@@ -83,7 +94,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        $resetLink = url('/reset-password/'.$token.'?email='.$request->email);
+        $resetLink = url('/reset-password/' . $token . '?email=' . $request->email);
 
         $mail = new PHPMailer(true);
 

@@ -20,10 +20,17 @@
 
                         <div class="card-header">
                             <div class="d-flex align-items-center">
+                                @if(Auth::user()->role === 'admin')
                                 <a href="{{ route('admin.product.insert') }}" class="btn btn-success btn-sm">
                                     <i data-feather="plus" class="icon-xs"></i>
                                     Tambah
                                 </a>
+                                @else
+                                <a href="{{ route('seller.product.insert') }}" class="btn btn-success btn-sm">
+                                    <i data-feather="plus" class="icon-xs"></i>
+                                    Tambah
+                                </a>
+                                @endif
                             </div>
                         </div>
 
@@ -98,10 +105,17 @@
                                             <!-- Action -->
                                             <td>
                                                 <div class="d-flex gap-1">
+                                                    @if(Auth::user()->role === 'admin')
                                                     <a href="{{ route('admin.product.edit', $product->uuid) }}"
                                                     class="btn btn-sm bg-primary-subtle btn-edit-user">
                                                         <i class="mdi mdi-pencil-outline fs-14 text-primary"></i>
                                                     </a>
+                                                    @else
+                                                    <a href="{{ route('seller.product.edit', $product->uuid) }}"
+                                                    class="btn btn-sm bg-primary-subtle btn-edit-user">
+                                                        <i class="mdi mdi-pencil-outline fs-14 text-primary"></i>
+                                                    </a>
+                                                    @endif
 
                                                     @if (
                                                         $product->status === 'inactive' &&
@@ -141,7 +155,11 @@
     @method('DELETE')
 </form>
 <script>
+    @if(Auth::user()->role === 'admin')
     const deleteRoute = "{{ route('admin.product.destroy', ':uuid') }}";
+    @else
+    const deleteRoute = "{{ route('seller.product.destroy', ':uuid') }}";
+    @endif
 
     function deleteProduct(uuid, productName) {
         Swal.fire({

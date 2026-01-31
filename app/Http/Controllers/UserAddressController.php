@@ -46,4 +46,45 @@ class UserAddressController extends Controller
 
         return back()->with('success', 'Alamat berhasil ditambahkan.');
     }
+
+    public function setDefault($uuid)
+    {
+        DB::transaction(function () use ($uuid) {
+            // Set all addresses to not default
+            DB::table('user_addresses')
+                ->where('user_id', Auth::id())
+                ->update(['is_default' => false]);
+
+            // Set selected address as default
+            DB::table('user_addresses')
+                ->where('uuid', $uuid)
+                ->where('user_id', Auth::id())
+                ->update(['is_default' => true]);
+        });
+
+        return back()->with('success', 'Alamat utama berhasil diubah.');
+    }
+
+    public function delete($uuid)
+    {
+        $address = DB::table('user_addresses')
+            ->where('uuid', $uuid)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$address) {
+            return back()->with('error', 'Alamat tidak ditemukan.');
+        }
+
+        if ($address->is_default) {
+            return back()->with('error', 'Tidak dapat menghapus alamat utama. Jadikan alamat lain sebagai alamat utama terlebih dahulu.');
+        }
+
+        DB::table('user_addresses')
+            ->where('uuid', $uuid)
+            ->where('user_id', Auth::id())
+            ->delete();
+
+        return back()->with('success', 'Alamat berhasil dihapus.');
+    }
 }

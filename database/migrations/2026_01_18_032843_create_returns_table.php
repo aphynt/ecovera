@@ -20,8 +20,14 @@ return new class extends Migration
             $table->foreignId('seller_id')->constrained('users');
             $table->string('reason');
             $table->text('description')->nullable();
+            $table->string('image')->nullable();
             $table->enum('return_status', [
-                'requested','approved','rejected','item_sent_back','item_received','refunded'
+                'requested',
+                'approved',
+                'rejected',
+                'item_sent_back',
+                'item_received',
+                'refunded'
             ])->default('requested');
             $table->timestamps();
         });

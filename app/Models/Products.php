@@ -29,6 +29,11 @@ class Products extends Model
             ->where('is_primary', 1);
     }
 
+    public function images()
+    {
+        return $this->hasMany(ProductImages::class, 'product_id');
+    }
+
 
     protected static function booted()
     {

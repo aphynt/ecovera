@@ -18,7 +18,7 @@ class CheckoutController extends Controller
         $cart = Cart::where('user_id', Auth::id())->first();
 
         if (!$cart) {
-            return redirect()->back()->with('info', 'Keranjang masih kosong.');
+            return redirect()->route('cart')->with('info', 'Keranjang masih kosong.');
         }
 
         $items = DB::table('cart_items')
@@ -35,7 +35,7 @@ class CheckoutController extends Controller
             ->get();
 
         if ($items->isEmpty()) {
-            return redirect()->back()->with('info', 'Keranjang masih kosong.');
+            return redirect()->route('cart')->with('info', 'Keranjang masih kosong.');
         }
 
         $total = $items->sum('subtotal');
@@ -83,7 +83,7 @@ class CheckoutController extends Controller
             }
 
             // === TOTAL ===
-            $totalAmount = $cartItems->sum(fn ($item) => $item->price * $item->quantity);
+            $totalAmount = $cartItems->sum(fn($item) => $item->price * $item->quantity);
             $shippingCost = 0;
             $grandTotal  = $totalAmount + $shippingCost;
 
@@ -137,7 +137,8 @@ class CheckoutController extends Controller
 
                 return redirect()
                     ->route('orders.show', $orderId)
-                    ->with('success', 'Pesanan COD berhasil dibuat.');
+                    ->with('cod_success', true)
+                    ->with('order_code', 'ORD-' . now()->timestamp);
             }
 
             Config::$serverKey    = config('midtrans.server_key');
@@ -180,7 +181,6 @@ class CheckoutController extends Controller
                 'snapToken' => $snapToken,
                 'orderId'   => $orderId
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('info', 'Checkout gagal. ' . $e->getMessage());
@@ -193,9 +193,9 @@ class CheckoutController extends Controller
         $signature = hash(
             'sha512',
             $request->order_id .
-            $request->status_code .
-            $request->gross_amount .
-            $serverKey
+                $request->status_code .
+                $request->gross_amount .
+                $serverKey
         );
 
         if ($signature !== $request->signature_key) {
@@ -216,4 +216,3 @@ class CheckoutController extends Controller
         }
     }
 }
-

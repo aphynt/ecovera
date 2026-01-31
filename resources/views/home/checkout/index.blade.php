@@ -96,7 +96,7 @@
                                 </div>
                             </div>
 
-                            <a href="{{ route('profile.address') }}"
+                            <a href="{{ route('admin.my.address') }}"
                                class="d-inline-block mt-2 fs-sm text-decoration-underline">
                                 Ubah alamat
                             </a>
@@ -142,7 +142,7 @@
                             </div>
                         </div>
 
-                        <form action="{{ route('admin.checkout.process') }}" method="POST">
+                        <form action="{{ route('checkout.process') }}" method="POST">
                             @csrf
 
                             <div class="mb-3">

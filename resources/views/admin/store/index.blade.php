@@ -12,10 +12,17 @@
                     <h4 class="fs-18 fw-semibold m-0">Toko</h4>
                 </div>
                 <div class="d-flex align-items-center">
+                    @if(Auth::user()->role === 'admin')
                     <a href="{{ route('admin.store.insert') }}" class="btn btn-success btn-sm">
                         <i data-feather="plus" class="icon-xs"></i>
                         Tambah
                     </a>
+                    @else
+                    <a href="{{ route('seller.store.insert') }}" class="btn btn-success btn-sm">
+                        <i data-feather="plus" class="icon-xs"></i>
+                        Tambah
+                    </a>
+                    @endif
                 </div>
             </div>
 
@@ -79,11 +86,19 @@
                                         </button>
                                         @endif
 
+                                    @if(Auth::user()->role === 'admin')
                                     <a href="{{ route('admin.store.edit', $store->uuid) }}"
                                         class="btn btn-sm btn-primary w-100">
                                         <i data-feather="edit" class="icon-xs me-1"></i>
                                         Edit
                                     </a>
+                                    @else
+                                    <a href="{{ route('seller.store.edit', $store->uuid) }}"
+                                        class="btn btn-sm btn-primary w-100">
+                                        <i data-feather="edit" class="icon-xs me-1"></i>
+                                        Edit
+                                    </a>
+                                    @endif
                                     @endif
                                 </div>
 

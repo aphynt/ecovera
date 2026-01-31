@@ -10,10 +10,17 @@
         <!-- Page Title -->
         <div class="py-3 d-flex align-items-center justify-content-between">
             <h4 class="fs-18 fw-semibold m-0">Edit Toko</h4>
+            @if(Auth::user()->role === 'admin')
             <a href="{{ route('admin.store') }}" class="btn btn-light btn-sm">
                 <i data-feather="arrow-left" class="icon-xs"></i>
                 Kembali
             </a>
+            @else
+            <a href="{{ route('seller.store') }}" class="btn btn-light btn-sm">
+                <i data-feather="arrow-left" class="icon-xs"></i>
+                Kembali
+            </a>
+            @endif
         </div>
 
         <div class="row">
@@ -22,7 +29,11 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
 
+                        @if(Auth::user()->role === 'admin')
                         <form action="{{ route('admin.store.update', $store->uuid) }}" method="POST">
+                        @else
+                        <form action="{{ route('seller.store.update', $store->uuid) }}" method="POST">
+                        @endif
                             @csrf
                             @method('PUT')
 
@@ -57,9 +68,15 @@
 
                             <!-- Action -->
                             <div class="d-flex justify-content-end mt-4 gap-2">
+                                @if(Auth::user()->role === 'admin')
                                 <a href="{{ route('admin.store') }}" class="btn btn-light">
                                     Batal
                                 </a>
+                                @else
+                                <a href="{{ route('seller.store') }}" class="btn btn-light">
+                                    Batal
+                                </a>
+                                @endif
                                 <button type="submit" class="btn btn-primary">
                                     <i data-feather="save" class="icon-xs me-1"></i>
                                     Perbarui Toko

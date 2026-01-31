@@ -32,7 +32,7 @@
                                         Produk Sehat Tersedia untuk Semua Orang
                                     </h2>
                                     <a class="btn btn-lg btn-outline-light rounded-pill"
-                                        href="#">Belanja sekarang</a>
+                                        href="./products">Belanja sekarang</a>
                                 </div>
                             </div>
                         </div>
@@ -52,7 +52,7 @@
                                         Produk organik dari sayuran
                                     </h2>
                                     <a class="btn btn-lg btn-outline-light rounded-pill"
-                                        href="#">Belanja sekarang</a>
+                                        href="./products">Belanja sekarang</a>
                                 </div>
                             </div>
                         </div>
@@ -72,7 +72,7 @@
                                         Barang yang tidak terpakai didaur ulang
                                     </h2>
                                     <a class="btn btn-lg btn-outline-light rounded-pill"
-                                        href="#">Belanja sekarang</a>
+                                        href="./products">Belanja sekarang</a>
                                 </div>
                             </div>
                         </div>
@@ -222,8 +222,8 @@
                     <h2 class="h3 mb-0">Produk populer</h2>
                     <div class="nav ms-3">
                         <a class="nav-link animate-underline px-0 py-2" href="shop-catalog-grocery.html">
-                            <span class="animate-target">Lihat semua</span>
-                            <i class="ci-chevron-right fs-base ms-1"></i>
+                            {{-- <span class="animate-target">Lihat semua</span> --}}
+                            {{-- <i class="ci-chevron-right fs-base ms-1"></i> --}}
                         </a>
                     </div>
                 </div>
