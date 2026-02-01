@@ -2,6 +2,23 @@
 // forms.scss
 //
 
+// Fix for vendor prefix warnings - add standard appearance property
+[type=button],
+[type=reset],
+[type=submit] {
+    appearance: button;
+    -webkit-appearance: button;
+}
+
+[type=search] {
+    appearance: textfield;
+    -webkit-appearance: textfield;
+}
+
+::file-selector-button {
+    appearance: button;
+    -webkit-appearance: button;
+}
 
 // Form elements (Color and Range)
 input.form-control[type="color"],

@@ -359,10 +359,48 @@
 
         <!-- Account button visible on screens < 768px wide (md breakpoint) -->
         <div class="offcanvas-header flex-column align-items-start d-md-none">
-            <a class="btn btn-lg btn-outline-secondary w-100 rounded-pill" href="{{ route('login') }}">
-                <i class="ci-user fs-lg ms-n1 me-2"></i>
-                Account
-            </a>
+            @if(Auth::check())
+                <div class="w-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="ci-user fs-xl me-2"></i>
+                        <span class="fw-semibold">{{ Auth::user()->name }}</span>
+                    </div>
+                    @if(Auth::user()->role === 'admin')
+                        <a class="btn btn-lg btn-outline-secondary w-100 rounded-pill mb-2"
+                            href="{{ route('admin.dashboard.index') }}">
+                            <i class="ci-pie-chart fs-lg ms-n1 me-2"></i>
+                            Dashboard Admin
+                        </a>
+                    @elseif(Auth::user()->role == 'seller')
+                        <a class="btn btn-lg btn-outline-secondary w-100 rounded-pill mb-2"
+                            href="{{ route('seller.dashboard.index') }}">
+                            <i class="ci-package fs-lg ms-n1 me-2"></i>
+                            Dashboard Toko
+                        </a>
+                    @endif
+                    @if(Auth::user()->role === 'buyer')
+                        <a class="btn btn-lg btn-outline-secondary w-100 rounded-pill mb-2" href="{{ route('buyer.profile') }}">
+                            <i class="ci-user fs-lg ms-n1 me-2"></i>
+                            Akun Saya
+                        </a>
+                    @else
+                        <a class="btn btn-lg btn-outline-secondary w-100 rounded-pill mb-2"
+                            href="{{ route('seller.profile') }}">
+                            <i class="ci-user fs-lg ms-n1 me-2"></i>
+                            Akun Saya
+                        </a>
+                    @endif
+                    <a class="btn btn-lg btn-outline-secondary w-100 rounded-pill" href="{{ route('logout') }}">
+                        <i class="ci-sign-out fs-lg ms-n1 me-2"></i>
+                        Logout
+                    </a>
+                </div>
+            @else
+                <a class="btn btn-lg btn-outline-secondary w-100 rounded-pill" href="{{ route('login') }}">
+                    <i class="ci-user fs-lg ms-n1 me-2"></i>
+                    Account
+                </a>
+            @endif
         </div>
     </nav>
 
@@ -380,7 +418,7 @@
 
             <!-- Navbar brand (Logo) -->
             <a class="navbar-brand fs-2 p-0 pe-lg-2 pe-xxl-0 me-0 me-sm-3 me-md-4 me-xxl-5"
-                href="#">{{ config('app.name') }}</a>
+                href="{{ route('home') }}">{{ config('app.name') }}</a>
 
             <!-- Search bar visible on screens > 768px wide (md breakpoint) -->
             <div class="position-relative w-100 d-none d-md-block me-3 me-xl-4">
@@ -449,6 +487,43 @@
                     </ul>
                 </div>
 
+
+                <!-- Dashboard/Kelola Toko Icon (Admin/Seller) -->
+                @if(Auth::check())
+                    @if(Auth::user()->role == 'admin')
+                        <a class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-scale position-relative me-2"
+                            href="{{ route('admin.dashboard.index') }}" aria-label="Dashboard Admin" data-bs-toggle="tooltip"
+                            title="Dashboard Admin">
+                            <i class="ci-pie-chart animate-target"></i>
+                        </a>
+                    @elseif(Auth::user()->role == 'seller')
+                        <a class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-scale position-relative me-2"
+                            href="{{ route('seller.dashboard.index') }}" aria-label="Kelola Toko" data-bs-toggle="tooltip"
+                            title="Kelola Toko">
+                            <i class="ci-package animate-target"></i>
+                        </a>
+                    @endif
+                @endif
+
+                <!-- Chat Icon -->
+                @if(Auth::check())
+                    @php
+                        $unreadChatCount = \App\Models\Message::where('receiver_id', Auth::id())
+                            ->where('is_read', false)
+                            ->count();
+                    @endphp
+                    <a class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-scale position-relative"
+                        href="{{ route('chat.index') }}" aria-label="Chat">
+                        @if($unreadChatCount > 0)
+                            <span class="position-absolute top-0 start-100 badge fs-xs text-bg-danger rounded-pill ms-n3 z-2"
+                                style="--cz-badge-padding-y: .25em; --cz-badge-padding-x: .42em">
+                                {{ $unreadChatCount }}
+                            </span>
+                        @endif
+                        <i class="ci-chat animate-target"></i>
+                    </a>
+                @endif
+
                 <!-- Search toggle button visible on screens < 768px wide (md breakpoint) -->
                 <button type="button"
                     class="btn btn-icon fs-xl btn-outline-secondary border-0 rounded-circle animate-shake d-md-none"
@@ -465,31 +540,69 @@
                     <i class="ci-map-pin animate-target"></i>
                 </button>
 
+                <!-- Account button visible on screens > 768px wide (md breakpoint) -->
                 @if(Auth::check())
-                    @php
-                        $unreadMessages = \App\Models\Message::where('receiver_id', Auth::id())
-                            ->where('is_read', false)
-                            ->count();
-                    @endphp
-                    <a class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-scale position-relative d-none d-md-inline-flex me-2"
-                        href="{{ route('admin.chat.index') }}">
-                        <i class="ci-chat animate-target"></i>
-                        @if($unreadMessages > 0)
-                            <span class="position-absolute top-0 start-100 badge fs-xs text-bg-danger rounded-pill ms-n3 z-2"
-                                style="--cz-badge-padding-y: .25em; --cz-badge-padding-x: .42em">
-                                {{ $unreadMessages }}
-                            </span>
-                        @endif
-                        <span class="visually-hidden">Chat</span>
+                    <div class="dropdown d-none d-md-inline-flex">
+                        <button class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-shake"
+                            type="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="ci-user animate-target"></i>
+                            <span class="visually-hidden">Account</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                            <li>
+                                <h6 class="dropdown-header">{{ Auth::user()->name }}</h6>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            @if(Auth::user()->role === 'admin')
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('admin.dashboard.index') }}">
+                                        <i class="ci-pie-chart fs-base opacity-75 me-2"></i>
+                                        Dashboard Admin
+                                    </a>
+                                </li>
+                            @elseif(Auth::user()->role == 'seller')
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('seller.dashboard.index') }}">
+                                        <i class="ci-package fs-base opacity-75 me-2"></i>
+                                        Dashboard Toko
+                                    </a>
+                                </li>
+                            @endif
+                            @if(Auth::user()->role === 'buyer')
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('buyer.profile') }}">
+                                        <i class="ci-user fs-base opacity-75 me-2"></i>
+                                        Akun Saya
+                                    </a>
+                                </li>
+                            @else
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('seller.profile') }}">
+                                        <i class="ci-user fs-base opacity-75 me-2"></i>
+                                        Akun Saya
+                                    </a>
+                                </li>
+                            @endif
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('logout') }}">
+                                    <i class="ci-sign-out fs-base opacity-75 me-2"></i>
+                                    Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                @else
+                    <a class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-shake d-none d-md-inline-flex"
+                        href="{{ route('login') }}">
+                        <i class="ci-user animate-target"></i>
+                        <span class="visually-hidden">Account</span>
                     </a>
                 @endif
-
-                <!-- Account button visible on screens > 768px wide (md breakpoint) -->
-                <a class="btn btn-icon fs-lg btn-outline-secondary border-0 rounded-circle animate-shake d-none d-md-inline-flex"
-                    href="{{ route('admin.dashboard.index') }}">
-                    <i class="ci-user animate-target"></i>
-                    <span class="visually-hidden">Account</span>
-                </a>
 
                 @php
                     $cartCount = 0;

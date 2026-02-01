@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Products;
 
 class ChatController extends Controller
 {
@@ -32,10 +33,15 @@ class ChatController extends Controller
     }
 
     // Tampilkan percakapan dengan user tertentu
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $otherUser = User::findOrFail($id);
         $myId = Auth::id();
+
+        $product = null;
+        if ($request->has('product_id')) {
+            $product = Products::find($request->product_id);
+        }
 
         // Ambil pesan antara saya dan dia
         $messages = Message::where(function ($q) use ($myId, $id) {
@@ -50,7 +56,7 @@ class ChatController extends Controller
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
-        return view('chat.show', compact('messages', 'otherUser'));
+        return view('chat.show', compact('messages', 'otherUser', 'product'));
     }
 
     // Kirim pesan
@@ -66,6 +72,6 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
-        return redirect()->route('admin.chat.show', $id);
+        return redirect()->route('chat.show', $id);
     }
 }

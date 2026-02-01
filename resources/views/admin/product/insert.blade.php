@@ -10,10 +10,17 @@
         <!-- Page Title -->
         <div class="py-3 d-flex align-items-center justify-content-between">
             <h4 class="fs-18 fw-semibold m-0">Tambah Produk</h4>
+            @if(Auth::user()->role === 'admin')
             <a href="{{ route('admin.product') }}" class="btn btn-light btn-sm">
                 <i data-feather="arrow-left" class="icon-xs"></i>
                 Kembali
             </a>
+            @else
+            <a href="{{ route('seller.product') }}" class="btn btn-light btn-sm">
+                <i data-feather="arrow-left" class="icon-xs"></i>
+                Kembali
+            </a>
+            @endif
         </div>
 
         <div class="row">
@@ -22,7 +29,11 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
 
+                        @if(Auth::user()->role === 'admin')
                         <form action="{{ route('admin.product.create') }}"
+                        @else
+                        <form action="{{ route('seller.product.create') }}"
+                        @endif
                             method="POST"
                             enctype="multipart/form-data">
                             @csrf

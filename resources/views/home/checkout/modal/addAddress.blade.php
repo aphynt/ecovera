@@ -1,7 +1,7 @@
 <div class="modal fade" id="addAddressModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <form action="{{ route('admin.address.store') }}" method="POST">
+            <form action="{{ route('buyer.address.store') }}" method="POST">
                 @csrf
 
                 <div class="modal-header">

@@ -101,7 +101,7 @@
             <a class="btn btn-lg btn-secondary w-100 rounded-pill" href="{{ route('cart') }}">
                 Lihat Keranjang
             </a>
-            <a class="btn btn-lg btn-primary w-100 rounded-pill" href="{{ route('admin.checkout') }}">
+            <a class="btn btn-lg btn-primary w-100 rounded-pill" href="{{ route('checkout') }}">
                 Checkout
             </a>
         </div>

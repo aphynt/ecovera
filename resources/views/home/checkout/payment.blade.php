@@ -19,13 +19,11 @@
                             Jangan menutup halaman ini sebelum proses pembayaran selesai.
                         </div>
 
-                        <button id="pay-button"
-                                class="btn btn-lg btn-primary w-100 rounded-pill">
+                        <button id="pay-button" class="btn btn-lg btn-primary w-100 rounded-pill">
                             Bayar Sekarang
                         </button>
 
-                        <a href="{{ route('admin.orders.show', $orderId) }}"
-                           class="btn btn-link mt-3">
+                        <a href="{{ route('buyer.orders.detail', $orderId) }}" class="btn btn-link mt-3">
                             Lihat Detail Pesanan
                         </a>
 
@@ -39,37 +37,36 @@
 </main>
 
 {{-- Midtrans Snap --}}
-<script src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key="{{ config('midtrans.client_key') }}">
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}">
 </script>
 
 <script>
-document.getElementById('pay-button').addEventListener('click', function () {
+    document.getElementById('pay-button').addEventListener('click', function () {
 
-    snap.pay('{{ $snapToken }}', {
+        snap.pay('{{ $snapToken }}', {
 
-        onSuccess: function (result) {
-            console.log('SUCCESS', result);
-            window.location.href = "{{ route('admin.orders.show', $orderId) }}";
-        },
+            onSuccess: function (result) {
+                console.log('SUCCESS', result);
+                window.location.href = "{{ route('buyer.orders.detail', $orderId) }}";
+            },
 
-        onPending: function (result) {
-            console.log('PENDING', result);
-            window.location.href = "{{ route('admin.orders.show', $orderId) }}";
-        },
+            onPending: function (result) {
+                console.log('PENDING', result);
+                window.location.href = "{{ route('buyer.orders.detail', $orderId) }}";
+            },
 
-        onError: function (result) {
-            console.log('ERROR', result);
-            alert('Pembayaran gagal. Silakan coba lagi.');
-        },
+            onError: function (result) {
+                console.log('ERROR', result);
+                alert('Pembayaran gagal. Silakan coba lagi.');
+            },
 
-        onClose: function () {
-            alert('Pembayaran belum diselesaikan.');
-        }
+            onClose: function () {
+                alert('Pembayaran belum diselesaikan.');
+            }
+
+        });
 
     });
-
-});
 </script>
 
 @include('home.layout.footer')
