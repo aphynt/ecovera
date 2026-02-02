@@ -187,16 +187,30 @@
                         </div>
 
                         <!-- item-->
-                        <a href="pages-profile.html" class="dropdown-item notify-item">
+                        @if(Auth::user()->role === 'admin')
+                        <a href="{{ route('admin.profile') }}" class="dropdown-item notify-item">
                             <i class="mdi mdi-account-circle-outline fs-16 align-middle"></i>
                             <span>Akun Saya</span>
                         </a>
+                        @else
+                        <a href="{{ route('seller.profile') }}" class="dropdown-item notify-item">
+                            <i class="mdi mdi-account-circle-outline fs-16 align-middle"></i>
+                            <span>Akun Saya</span>
+                        </a>
+                        @endif
 
                         <!-- item -->
+                        @if(Auth::user()->role === 'admin')
                         <a href="{{ route('admin.lock.screen') }}" class="dropdown-item notify-item">
                             <i class="mdi mdi-lock-outline fs-16 align-middle"></i>
                             <span>Kunci Layar</span>
                         </a>
+                        @else
+                        <a href="{{ route('seller.lock.screen') }}" class="dropdown-item notify-item">
+                            <i class="mdi mdi-lock-outline fs-16 align-middle"></i>
+                            <span>Kunci Layar</span>
+                        </a>
+                        @endif
 
                         <div class="dropdown-divider"></div>
 

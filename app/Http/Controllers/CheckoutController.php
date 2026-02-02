@@ -18,7 +18,7 @@ class CheckoutController extends Controller
         $cart = Cart::where('user_id', Auth::id())->first();
 
         if (!$cart) {
-            return redirect()->back()->with('info', 'Keranjang masih kosong.');
+            return redirect()->route('cart')->with('info', 'Keranjang masih kosong.');
         }
 
         $items = DB::table('cart_items')
@@ -35,7 +35,7 @@ class CheckoutController extends Controller
             ->get();
 
         if ($items->isEmpty()) {
-            return redirect()->back()->with('info', 'Keranjang masih kosong.');
+            return redirect()->route('cart')->with('info', 'Keranjang masih kosong.');
         }
 
         $total = $items->sum('subtotal');
@@ -83,50 +83,53 @@ class CheckoutController extends Controller
             }
 
             // === TOTAL ===
-            $totalAmount = $cartItems->sum(fn ($item) => $item->price * $item->quantity);
+            $totalAmount = $cartItems->sum(fn($item) => $item->price * $item->quantity);
             $shippingCost = 0;
-            $grandTotal  = $totalAmount + $shippingCost;
+            $grandTotal = $totalAmount + $shippingCost;
+
+            // Generate UUID
+            $orderUuid = Str::uuid();
 
             $orderId = DB::table('orders')->insertGetId([
-                'uuid'           => Str::uuid(),
-                'order_code'     => 'ORD-' . now()->timestamp,
-                'buyer_id'       => $user->id,
-                'total_amount'   => $totalAmount,
-                'shipping_cost'  => $shippingCost,
-                'grand_total'    => $grandTotal,
-                'status'         => 'pending',
+                'uuid' => $orderUuid,
+                'order_code' => 'ORD-' . now()->timestamp,
+                'buyer_id' => $user->id,
+                'total_amount' => $totalAmount,
+                'shipping_cost' => $shippingCost,
+                'grand_total' => $grandTotal,
+                'status' => 'pending',
                 'payment_method' => $request->payment_method,
-                'created_at'     => now(),
-                'updated_at'     => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             // === ORDER ITEMS ===
             foreach ($cartItems as $item) {
                 DB::table('order_items')->insert([
-                    'uuid'       => Str::uuid(),
-                    'order_id'   => $orderId,
+                    'uuid' => Str::uuid(),
+                    'order_id' => $orderId,
                     'product_id' => $item->product_id,
-                    'seller_id'  => $item->seller_id,
-                    'quantity'   => $item->quantity,
-                    'price'      => $item->price,
-                    'subtotal'   => $item->price * $item->quantity,
+                    'seller_id' => $item->seller_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'subtotal' => $item->price * $item->quantity,
                 ]);
             }
 
             if ($request->payment_method === 'cod') {
 
                 DB::table('payments')->insert([
-                    'uuid'            => Str::uuid(),
-                    'order_id'        => $orderId,
+                    'uuid' => Str::uuid(),
+                    'order_id' => $orderId,
                     'payment_gateway' => 'cod',
-                    'amount'          => $grandTotal,
-                    'payment_status'  => 'pending',
+                    'amount' => $grandTotal,
+                    'payment_status' => 'pending',
                 ]);
 
                 DB::table('shipments')->insert([
-                    'uuid'            => Str::uuid(),
-                    'order_id'        => $orderId,
-                    'courier'         => 'belum dipilih',
+                    'uuid' => Str::uuid(),
+                    'order_id' => $orderId,
+                    'courier' => 'belum dipilih',
                     'shipping_status' => 'pending',
                 ]);
 
@@ -136,38 +139,39 @@ class CheckoutController extends Controller
                 DB::commit();
 
                 return redirect()
-                    ->route('orders.show', $orderId)
-                    ->with('success', 'Pesanan COD berhasil dibuat.');
+                    ->route('buyer.orders.detail', $orderUuid)
+                    ->with('cod_success', true)
+                    ->with('order_code', 'ORD-' . now()->timestamp);
             }
 
-            Config::$serverKey    = config('midtrans.server_key');
+            Config::$serverKey = config('midtrans.server_key');
             Config::$isProduction = config('midtrans.is_production');
-            Config::$isSanitized  = true;
-            Config::$is3ds        = true;
+            Config::$isSanitized = true;
+            Config::$is3ds = true;
 
             $snapToken = Snap::getSnapToken([
                 'transaction_details' => [
-                    'order_id'     => 'ORD-' . $orderId,
+                    'order_id' => 'ORD-' . $orderId,
                     'gross_amount' => $grandTotal,
                 ],
                 'customer_details' => [
                     'first_name' => $user->name,
-                    'email'      => $user->email,
+                    'email' => $user->email,
                 ],
             ]);
 
             DB::table('payments')->insert([
-                'uuid'            => Str::uuid(),
-                'order_id'        => $orderId,
+                'uuid' => Str::uuid(),
+                'order_id' => $orderId,
                 'payment_gateway' => 'midtrans',
-                'amount'          => $grandTotal,
-                'payment_status'  => 'pending',
+                'amount' => $grandTotal,
+                'payment_status' => 'pending',
             ]);
 
             DB::table('shipments')->insert([
-                'uuid'            => Str::uuid(),
-                'order_id'        => $orderId,
-                'courier'         => 'belum dipilih',
+                'uuid' => Str::uuid(),
+                'order_id' => $orderId,
+                'courier' => 'belum dipilih',
                 'shipping_status' => 'pending',
             ]);
 
@@ -178,9 +182,8 @@ class CheckoutController extends Controller
 
             return view('home.checkout.payment', [
                 'snapToken' => $snapToken,
-                'orderId'   => $orderId
+                'orderId' => $orderUuid
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('info', 'Checkout gagal. ' . $e->getMessage());
@@ -216,4 +219,3 @@ class CheckoutController extends Controller
         }
     }
 }
-

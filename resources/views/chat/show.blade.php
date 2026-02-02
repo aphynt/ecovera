@@ -51,7 +51,7 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white d-flex align-items-center justify-content-between p-3">
                         <div class="d-flex align-items-center">
-                            <a href="{{ route('admin.chat.index') }}" class="btn btn-sm btn-outline-secondary me-3">
+                            <a href="{{ route('chat.index') }}" class="btn btn-sm btn-outline-secondary me-3">
                                 <i class="ci-arrow-left"></i> Kembali
                             </a>
                             <h5 class="mb-0">{{ $otherUser->name }}</h5>
@@ -59,6 +59,22 @@
                     </div>
 
                     <div class="card-body">
+                        {{-- Product Context (If initiated from product page) --}}
+                        @if(isset($product) && $product)
+                            <div class="alert alert-light border d-flex align-items-center mb-3 p-2" role="alert">
+                                <div class="flex-shrink-0" style="width: 50px; height: 50px;">
+                                    <img src="{{ $product->primaryImage ? asset('storage/' . $product->primaryImage->image_url) : asset('logo/logo.png') }}"
+                                        alt="{{ $product->name }}" class="w-100 h-100 object-fit-cover rounded">
+                                </div>
+                                <div class="ms-3 flex-grow-1 overflow-hidden">
+                                    <h6 class="mb-0 text-truncate">{{ $product->name }}</h6>
+                                    <div class="small text-primary fw-medium">Rp
+                                        {{ number_format($product->price, 0, ',', '.') }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                         {{-- Chat Area --}}
                         <div class="chat-container mb-3" id="chatContainer">
                             @foreach($messages as $msg)
@@ -76,11 +92,12 @@
                         </div>
 
                         {{-- Input Form --}}
-                        <form action="{{ route('admin.chat.store', $otherUser->id) }}" method="POST">
+                        <form action="{{ route('chat.store', $otherUser->id) }}" method="POST">
                             @csrf
                             <div class="input-group">
-                                <input type="text" name="message" class="form-control" placeholder="Tulis pesan..."
-                                    required autofocus>
+                                <input type="text" name="message" class="form-control"
+                                    value="{{ isset($product) && $product ? 'Halo, apakah stok ' . $product->name . ' masih ada? ' . route('product.detail', $product->uuid) : '' }}"
+                                    placeholder="Tulis pesan..." required autofocus>
                                 <button class="btn btn-primary" type="submit">
                                     <i class="ci-send me-1"></i> Kirim
                                 </button>

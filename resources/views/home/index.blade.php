@@ -32,7 +32,7 @@
                                         Produk Sehat Tersedia untuk Semua Orang
                                     </h2>
                                     <a class="btn btn-lg btn-outline-light rounded-pill"
-                                        href="#">Belanja sekarang</a>
+                                        href="./products">Belanja sekarang</a>
                                 </div>
                             </div>
                         </div>
@@ -195,17 +195,39 @@
             <div class="col-lg-3 pb-2 pb-sm-3 pb-md-4 mb-5 mb-lg-0">
                 <h2 class="h3 border-bottom pb-3 pb-md-4 mb-4">Categories</h2>
                 <div class="row nav g-3 g-sm-4">
+                    <!-- View All Link -->
+                    <div class="col-sm-6 col-md-4 col-lg-12 d-flex">
+                        <div class="position-relative d-flex min-w-0 align-items-center">
+                            <div class="d-flex flex-shrink-0 align-items-center justify-content-center bg-body-tertiary rounded-circle"
+                                style="width: 56px; height: 56px">
+                                <i class="ci-grid fs-xl"></i>
+                            </div>
+                            <div class="min-w-0 ps-3">
+                                <a class="nav-link animate-underline stretched-link fs-base fw-semibold p-0 mb-1"
+                                    href="{{ route('products.all') }}">
+                                    <span class="animate-target text-truncate">Lihat Semua</span>
+                                </a>
+                                <div class="fs-xs fw-normal text-body-secondary">
+                                    @php
+                                        $totalProducts = \App\Models\Products::where('status', 'active')->count();
+                                    @endphp
+                                    {{ $totalProducts }} produk
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     @foreach ($data['category'] as $category)
                     <div class="col-sm-6 col-md-4 col-lg-12 d-flex">
                         <div class="position-relative d-flex min-w-0 align-items-center">
                             <div class="d-flex flex-shrink-0 align-items-center justify-content-center bg-body-tertiary rounded-circle"
                                 style="width: 56px; height: 56px">
                                 <img src="{{ asset('storage/'.$category->image_url) }}" width="40"
-                                    alt="Image">
+                                    alt="{{ $category->name }}">
                             </div>
                             <div class="min-w-0 ps-3">
                                 <a class="nav-link animate-underline stretched-link fs-base fw-semibold p-0 mb-1"
-                                    href="shop-catalog-grocery.html">
+                                    href="{{ route('products.category', $category->slug) }}">
                                     <span class="animate-target text-truncate">{{ $category->name }}</span>
                                 </a>
                                 <div class="fs-xs fw-normal text-body-secondary">{{ $category->products_count }} produk</div>
@@ -221,9 +243,9 @@
                 <div class="d-flex align-items-center justify-content-between border-bottom pb-3 pb-md-4 mb-3 mb-lg-4">
                     <h2 class="h3 mb-0">Produk populer</h2>
                     <div class="nav ms-3">
-                        <a class="nav-link animate-underline px-0 py-2" href="shop-catalog-grocery.html">
-                            <span class="animate-target">Lihat semua</span>
-                            <i class="ci-chevron-right fs-base ms-1"></i>
+                        <a class="nav-link animate-underline px-0 py-2" href="{{ route('products.all') }}">
+                            {{-- <span class="animate-target">Lihat semua</span> --}}
+                            {{-- <i class="ci-chevron-right fs-base ms-1"></i> --}}
                         </a>
                     </div>
                 </div>
@@ -240,7 +262,7 @@
                                         <i class="ci-heart animate-target"></i>
                                     </button>
 
-                                    <a class="d-block p-2 p-lg-3" href="#">
+                                    <a class="d-block p-2 p-lg-3" href="{{ route('product.detail', $product->uuid) }}">
                                         <div class="ratio" style="--cz-aspect-ratio: calc(160 / 191 * 100%)">
                                             <img
                                                 src="{{ $product->primaryImage
@@ -268,7 +290,7 @@
                                         Rp {{ number_format($product->price, 0, ',', '.') }}
                                     </div>
                                     <h3 class="fs-sm lh-base mb-0">
-                                        <a class="hover-effect-underline fw-normal" href="#">
+                                        <a class="hover-effect-underline fw-normal" href="{{ route('product.detail', $product->uuid) }}">
                                             {{ $product->name }}
                                         </a>
                                     </h3>

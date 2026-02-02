@@ -17,7 +17,7 @@
                         @else
                             <div class="list-group list-group-flush">
                                 @foreach($users as $user)
-                                    <a href="{{ route('admin.chat.show', $user->id) }}"
+                                    <a href="{{ route('chat.show', $user->id) }}"
                                         class="list-group-item list-group-item-action d-flex align-items-center p-3">
                                         {{-- Avatar Placeholder --}}
                                         <div class="flex-shrink-0">

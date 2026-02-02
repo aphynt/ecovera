@@ -38,7 +38,7 @@
                                 <tr class="border-bottom">
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
-                                            <img src="{{ asset('storage/'.$primaryImage) }}" width="72" class="rounded">
+                                            <img src="{{ asset('storage/' . $primaryImage) }}" width="72" class="rounded">
                                             <div>
                                                 <div class="fw-semibold">{{ $item->name }}</div>
                                                 <div class="fs-xs text-muted">
@@ -96,8 +96,8 @@
                                 </div>
                             </div>
 
-                            <a href="{{ route('profile.address') }}"
-                               class="d-inline-block mt-2 fs-sm text-decoration-underline">
+                            <a href="{{ route('buyer.my.address') }}"
+                                class="d-inline-block mt-2 fs-sm text-decoration-underline">
                                 Ubah alamat
                             </a>
                         @else
@@ -105,9 +105,8 @@
                                 Alamat pengiriman belum diatur
                             </div>
 
-                            <button class="btn btn-sm btn-primary mt-2"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#addAddressModal">
+                            <button class="btn btn-sm btn-primary mt-2" data-bs-toggle="modal"
+                                data-bs-target="#addAddressModal">
                                 Tambah alamat
                             </button>
 
@@ -142,31 +141,29 @@
                             </div>
                         </div>
 
-                        <form action="{{ route('admin.checkout.process') }}" method="POST">
+                        <form action="{{ route('checkout.process') }}" method="POST">
                             @csrf
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Metode Pembayaran</label>
 
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio"
-                                        name="payment_method" value="midtrans" checked>
+                                    <input class="form-check-input" type="radio" name="payment_method" value="midtrans"
+                                        checked>
                                     <label class="form-check-label">
                                         Transfer / E-Wallet / Virtual Account
                                     </label>
                                 </div>
 
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="radio"
-                                        name="payment_method" value="cod">
+                                    <input class="form-check-input" type="radio" name="payment_method" value="cod">
                                     <label class="form-check-label">
                                         COD (Bayar di Tempat)
                                     </label>
                                 </div>
                             </div>
 
-                            <button type="submit"
-                                    class="btn btn-lg btn-primary w-100 rounded-pill">
+                            <button type="submit" class="btn btn-lg btn-primary w-100 rounded-pill">
                                 Lanjutkan ke Pembayaran
                             </button>
                         </form>
