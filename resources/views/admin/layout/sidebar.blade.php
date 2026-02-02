@@ -114,6 +114,24 @@
                 @endif
 
                 @if (Auth::user()->role == 'seller')
+                    {{-- Seller: Kelola pesanan untuk toko mereka --}}
+                    <li>
+                        <a href="{{ route('seller.orders.index') }}" class="tp-link">
+                            <i data-feather="shopping-bag"></i>
+                            <span> Pesanan </span>
+                            @php
+                                $pendingOrders = \App\Models\Order::whereHas('items', function($q) {
+                                    $q->where('seller_id', Auth::id());
+                                })->where('status', 'paid')->count();
+                            @endphp
+                            @if($pendingOrders > 0)
+                                <span class="badge bg-warning ms-1">{{ $pendingOrders }}</span>
+                            @endif
+                        </a>
+                    </li>
+                @endif
+
+                @if (Auth::user()->role == 'seller')
                     {{-- Seller: Kelola return untuk toko mereka --}}
                     <li>
                         <a href="{{ route('seller.returns.index') }}" class="tp-link">

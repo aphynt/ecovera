@@ -27,4 +27,9 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Products::class, 'product_id');
     }
+
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
 }

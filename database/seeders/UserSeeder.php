@@ -17,9 +17,10 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         //Admin
-        User::insert([
-            'name' => 'Administrator',
+        User::updateOrCreate([
             'email' => 'ecovera123@gmail.com',
+        ], [
+            'name' => 'Administrator',
             'uuid' => (string) Uuid::uuid4()->toString(),
             'password' => Hash::make('sims100%'),
             'role' => 'admin',
@@ -29,9 +30,10 @@ class UserSeeder extends Seeder
         ]);
 
         //Seller
-        User::insert([
-            'name' => 'Ahmad Fadillah',
+        User::updateOrCreate([
             'email' => 'ahmadfadillah502@gmail.com',
+        ], [
+            'name' => 'Ahmad Fadillah',
             'uuid' => (string) Uuid::uuid4()->toString(),
             'password' => Hash::make('sims100%'),
             'role' => 'seller',
@@ -41,9 +43,10 @@ class UserSeeder extends Seeder
         ]);
 
         //Buyer
-        User::insert([
-            'name' => 'Wahyu',
+        User::updateOrCreate([
             'email' => 'wahyusyamsuar8@gmail.com',
+        ], [
+            'name' => 'Wahyu',
             'uuid' => (string) Uuid::uuid4()->toString(),
             'password' => Hash::make('sims100%'),
             'role' => 'buyer',

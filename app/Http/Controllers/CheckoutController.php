@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -90,14 +91,18 @@ class CheckoutController extends Controller
             // Generate UUID
             $orderUuid = Str::uuid();
 
+            // Set status berdasarkan metode pembayaran
+            $orderStatus = ($request->payment_method === 'cod') ? 'processed' : 'pending';
+            $orderCode = 'ORD-' . now()->timestamp;
+
             $orderId = DB::table('orders')->insertGetId([
                 'uuid' => $orderUuid,
-                'order_code' => 'ORD-' . now()->timestamp,
+                'order_code' => $orderCode,
                 'buyer_id' => $user->id,
                 'total_amount' => $totalAmount,
                 'shipping_cost' => $shippingCost,
                 'grand_total' => $grandTotal,
-                'status' => 'pending',
+                'status' => $orderStatus,
                 'payment_method' => $request->payment_method,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -136,12 +141,24 @@ class CheckoutController extends Controller
                 DB::table('cart_items')->where('cart_id', $cart->id)->delete();
                 DB::table('carts')->where('id', $cart->id)->delete();
 
+                // Auto-chat ke seller untuk COD
+                $sellerId = $this->sendOrderNotificationToSellers($orderId, $orderCode, $cartItems, $user);
+
                 DB::commit();
 
-                return redirect()
-                    ->route('buyer.orders.detail', $orderUuid)
-                    ->with('cod_success', true)
-                    ->with('order_code', 'ORD-' . now()->timestamp);
+                // Redirect to chat with the first seller
+                if ($sellerId) {
+                    return redirect()
+                        ->route('chat.show', $sellerId)
+                        ->with('cod_success', true)
+                        ->with('order_code', $orderCode)
+                        ->with('popup_message', 'Pesanan COD berhasil! Chat otomatis telah dikirim ke seller.');
+                } else {
+                    return redirect()
+                        ->route('buyer.orders.detail', $orderUuid)
+                        ->with('cod_success', true)
+                        ->with('order_code', $orderCode);
+                }
             }
 
             Config::$serverKey = config('midtrans.server_key');
@@ -196,9 +213,9 @@ class CheckoutController extends Controller
         $signature = hash(
             'sha512',
             $request->order_id .
-            $request->status_code .
-            $request->gross_amount .
-            $serverKey
+                $request->status_code .
+                $request->gross_amount .
+                $serverKey
         );
 
         if ($signature !== $request->signature_key) {
@@ -217,5 +234,89 @@ class CheckoutController extends Controller
                 'paid_at' => now()
             ]);
         }
+    }
+
+    /**
+     * Send auto-chat notification to sellers when COD order is placed
+     */
+    private function sendOrderNotificationToSellers($orderId, $orderCode, $cartItems, $buyer)
+    {
+        // Get buyer address
+        $buyerAddress = DB::table('user_addresses')
+            ->where('user_id', $buyer->id)
+            ->where('is_default', 1)
+            ->first();
+
+        $addressText = $buyerAddress
+            ? "{$buyerAddress->address_detail}, {$buyerAddress->district}, {$buyerAddress->city}, {$buyerAddress->province} {$buyerAddress->postal_code}"
+            : "Alamat belum diset";
+
+        $buyerPhone = $buyerAddress ? $buyerAddress->phone : ($buyer->phone ?? 'No. HP belum diset');
+
+        // Group items by seller_id
+        $itemsBySeller = $cartItems->groupBy('seller_id');
+        $firstSellerId = null;
+
+        foreach ($itemsBySeller as $sellerId => $items) {
+            if (!$firstSellerId) {
+                $firstSellerId = $sellerId;
+            }
+
+            // Create order summary for this seller
+            $productList = [];
+            $sellerTotal = 0;
+
+            foreach ($items as $item) {
+                // Get product details with image
+                $product = DB::table('products')
+                    ->leftJoin('product_images', function ($join) {
+                        $join->on('products.id', '=', 'product_images.product_id')
+                            ->where('product_images.is_primary', 1);
+                    })
+                    ->where('products.id', $item->product_id)
+                    ->select('products.*', 'product_images.image_url')
+                    ->first();
+
+                $imageUrl = $product && $product->image_url
+                    ? asset('storage/' . $product->image_url)
+                    : asset('logo/logo.png');
+
+                $productList[] = "📦 {$item->product_name}\n   Qty: {$item->quantity} x Rp " . number_format($item->price, 0, ',', '.') . " = Rp " . number_format($item->price * $item->quantity, 0, ',', '.');
+                $sellerTotal += $item->price * $item->quantity;
+            }
+
+            $productListText = implode("\n\n", $productList);
+
+            // Create rich chat message template
+            $message = "🛒 PESANAN BARU COD 🛒\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $message .= "📋 Kode: {$orderCode}\n";
+            $message .= "👤 Pembeli: {$buyer->name}\n";
+            $message .= "💰 Pembayaran: COD (Bayar di Tempat)\n\n";
+            $message .= "📦 PRODUK PESANAN:\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "{$productListText}\n\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "💵 Total Anda: Rp " . number_format($sellerTotal, 0, ',', '.') . "\n\n";
+            $message .= "🏠 ALAMAT PENGIRIMAN:\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "{$addressText}\n\n";
+            $message .= "📞 Kontak: {$buyerPhone}\n\n";
+            $message .= "✅ Status: Menunggu Diproses\n";
+            $message .= "⏰ Waktu: " . now()->format('d/m/Y H:i') . "\n\n";
+            $message .= "Mohon segera siapkan pesanan ini! 🚀";
+
+            // Send message to seller
+            Message::create([
+                'sender_id' => $buyer->id,
+                'receiver_id' => $sellerId,
+                'message' => $message,
+                'is_read' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return $firstSellerId;
     }
 }

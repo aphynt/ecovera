@@ -47,7 +47,7 @@
                                             $statusTexts = [
                                                 'pending' => 'Menunggu Pembayaran',
                                                 'paid' => 'Sudah Dibayar',
-                                                'processed' => 'Diproses',
+                                                'processed' => ($order->payment_method === 'cod') ? 'Menyiapkan Pesanan' : 'Diproses',
                                                 'shipped' => 'Dikirim',
                                                 'completed' => 'Selesai',
                                                 'cancelled' => 'Dibatalkan',
