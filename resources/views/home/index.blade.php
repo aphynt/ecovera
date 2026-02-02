@@ -52,7 +52,7 @@
                                         Produk organik dari sayuran
                                     </h2>
                                     <a class="btn btn-lg btn-outline-light rounded-pill"
-                                        href="#">Belanja sekarang</a>
+                                        href="./products">Belanja sekarang</a>
                                 </div>
                             </div>
                         </div>
@@ -72,7 +72,7 @@
                                         Barang yang tidak terpakai didaur ulang
                                     </h2>
                                     <a class="btn btn-lg btn-outline-light rounded-pill"
-                                        href="#">Belanja sekarang</a>
+                                        href="./products">Belanja sekarang</a>
                                 </div>
                             </div>
                         </div>

@@ -17,6 +17,7 @@ use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AdminReturnController;
 use App\Http\Controllers\SellerReturnController;
+use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Mail;
 
@@ -45,6 +46,11 @@ Route::post('/login', [AuthController::class, 'loginProcess'])->name('login.proc
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/register', [AuthController::class, 'registerProcess'])->name('register.process');
+Route::get('/email-sent', [AuthController::class, 'emailSent'])->name('email.sent');
+
+//Email Verification
+Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
 
 //Reset Password
 Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgotPassword');
@@ -109,7 +115,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/returns/{uuid}', [AdminReturnController::class, 'show'])->name('returns.show');
     Route::post('/returns/{uuid}/process-refund', [AdminReturnController::class, 'processRefund'])->name('returns.process-refund');
     Route::post('/returns/{uuid}/cancel-refund', [AdminReturnController::class, 'cancelRefund'])->name('returns.cancel-refund');
-
 });
 
 // Seller Routes
@@ -144,6 +149,13 @@ Route::middleware(['auth'])->prefix('seller')->name('seller.')->group(function (
     Route::get('/lock', [LockScreenController::class, 'lock'])->name('lock');
     Route::get('/lock-screen', [LockScreenController::class, 'show'])->name('lock.screen');
     Route::post('/unlock', [LockScreenController::class, 'unlock'])->name('unlock');
+
+    // Order Management
+    Route::get('/orders', [\App\Http\Controllers\SellerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{uuid}', [\App\Http\Controllers\SellerOrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{uuid}/process', [\App\Http\Controllers\SellerOrderController::class, 'process'])->name('orders.process');
+    Route::patch('/orders/{uuid}/ship', [\App\Http\Controllers\SellerOrderController::class, 'ship'])->name('orders.ship');
+    Route::patch('/orders/{uuid}/update-tracking', [\App\Http\Controllers\SellerOrderController::class, 'updateTracking'])->name('orders.update-tracking');
 
     // Return Management
     Route::get('/returns', [SellerReturnController::class, 'index'])->name('returns.index');

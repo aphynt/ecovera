@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Products;
 
 class ChatController extends Controller
@@ -43,6 +44,36 @@ class ChatController extends Controller
             $product = Products::find($request->product_id);
         }
 
+        // Get recent order context if coming from COD
+        $recentOrder = null;
+        if ($request->has('order_context') || session('cod_success')) {
+            $orderItems = DB::table('orders')
+                ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+                ->join('products', 'order_items.product_id', '=', 'products.id')
+                ->leftJoin('product_images', function ($join) {
+                    $join->on('products.id', '=', 'product_images.product_id')
+                        ->where('product_images.is_primary', 1);
+                })
+                ->where('orders.buyer_id', $myId)
+                ->where('order_items.seller_id', $id)
+                ->where('orders.created_at', '>=', now()->subHours(1)) // Last hour orders
+                ->select(
+                    'orders.order_code',
+                    'orders.created_at as order_date',
+                    'products.name as product_name',
+                    'products.price',
+                    'product_images.image_url',
+                    'order_items.quantity',
+                    'order_items.subtotal'
+                )
+                ->orderBy('orders.created_at', 'desc')
+                ->get();
+
+            if ($orderItems->isNotEmpty()) {
+                $recentOrder = $orderItems->groupBy('order_code')->first();
+            }
+        }
+
         // Ambil pesan antara saya dan dia
         $messages = Message::where(function ($q) use ($myId, $id) {
             $q->where('sender_id', $myId)->where('receiver_id', $id);
@@ -56,7 +87,7 @@ class ChatController extends Controller
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
-        return view('chat.show', compact('messages', 'otherUser', 'product'));
+        return view('chat.show', compact('messages', 'otherUser', 'product', 'recentOrder'));
     }
 
     // Kirim pesan
