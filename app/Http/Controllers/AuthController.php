@@ -10,6 +10,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -153,5 +154,107 @@ class AuthController extends Controller
         DB::table('password_resets')->where('email', $request->email)->delete();
 
         return redirect('/login')->with('success', 'Password berhasil diubah.');
+    }
+
+    public function registerProcess(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'nim' => 'required',
+            'instansi' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8',
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'nim.required' => 'NIM wajib diisi.',
+            'instansi.required' => 'Instansi wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 8 karakter.',
+        ]);
+
+        $token = Str::random(64);
+
+        $user = User::create([
+            'name' => $request->name,
+            'nim' => $request->nim,
+            'instansi' => $request->instansi,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'buyer', // Default role for registration
+            'is_active' => false,
+            'verification_token' => $token,
+        ]);
+
+        Mail::send('auth.emails.verify-email', [
+            'name' => $user->name,
+            'verificationLink' => route('verify.email', $token)
+        ], function ($message) use ($user) {
+            $message->to($user->email);
+            $message->subject('Verifikasi Email Anda');
+        });
+
+        return redirect()->route('email.sent')->with('email', $request->email);
+    }
+
+    public function emailSent()
+    {
+        return view('auth.verify-email');
+    }
+
+    public function verifyEmail($token)
+    {
+        $user = User::where('verification_token', $token)->first();
+
+        if (!$user) {
+            return redirect()->route('login')->with('info', 'Token verifikasi tidak valid atau sudah digunakan.');
+        }
+
+        $user->email_verified_at = now();
+        $user->is_active = true;
+        // Keep verification_token null after successful verification
+        $user->verification_token = null;
+        $user->save();
+
+        return redirect()->route('login')->with('success', 'Email berhasil diverifikasi. Silakan login.');
+    }
+    public function resendVerification(Request $request)
+    {
+        $email = $request->email ?? session('email');
+
+        if (!$email) {
+            return redirect()->route('login')->with('info', 'Sesi kadaluarsa. Silakan login ulang atau daftar kembali.');
+        }
+
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return back()->with('error', 'Email tidak ditemukan.');
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('login')->with('info', 'Email Anda sudah diverifikasi. Silakan login.');
+        }
+
+        $token = $user->verification_token;
+
+        // If for some reason token is null but not verified (shouldn't happen given logic), regenerate
+        if (!$token) {
+            $token = Str::random(64);
+            $user->verification_token = $token;
+            $user->save();
+        }
+
+        Mail::send('auth.emails.verify-email', [
+            'name' => $user->name,
+            'verificationLink' => route('verify.email', $token)
+        ], function ($message) use ($user) {
+            $message->to($user->email);
+            $message->subject('Verifikasi Email Anda');
+        });
+
+        return back()->with('message', 'Link verifikasi baru telah dikirim ke email Anda.')->with('email', $email);
     }
 }

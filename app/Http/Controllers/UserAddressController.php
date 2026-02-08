@@ -41,10 +41,59 @@ class UserAddressController extends Controller
                 'postal_code' => $data['postal_code'],
                 'address_detail' => $data['address_detail'],
                 'is_default' => $request->has('is_default'),
+                'label' => $request->label ?? 'Rumah',
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         });
 
         return back()->with('success', 'Alamat berhasil ditambahkan.');
+    }
+
+    public function update(Request $request, $uuid)
+    {
+        $data = $request->validate([
+            'recipient_name' => 'required|string',
+            'phone' => 'required|string',
+            'province' => 'required|string',
+            'city' => 'required|string',
+            'district' => 'required|string',
+            'postal_code' => 'required|string',
+            'address_detail' => 'required|string',
+            'is_default' => 'nullable'
+        ]);
+
+        DB::transaction(function () use ($data, $request, $uuid) {
+
+            if ($request->has('is_default')) {
+                DB::table('user_addresses')
+                    ->where('user_id', Auth::id())
+                    ->update(['is_default' => false]);
+            }
+
+            $updateData = [
+                'recipient_name' => $data['recipient_name'],
+                'phone' => $data['phone'],
+                'province' => $data['province'],
+                'city' => $data['city'],
+                'district' => $data['district'],
+                'postal_code' => $data['postal_code'],
+                'address_detail' => $data['address_detail'],
+                'label' => $request->label ?? 'Rumah',
+                'updated_at' => now(),
+            ];
+
+            if ($request->has('is_default')) {
+                $updateData['is_default'] = true;
+            }
+
+            DB::table('user_addresses')
+                ->where('uuid', $uuid)
+                ->where('user_id', Auth::id())
+                ->update($updateData);
+        });
+
+        return back()->with('success', 'Alamat berhasil diperbarui.');
     }
 
     public function setDefault($uuid)

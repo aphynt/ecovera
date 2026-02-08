@@ -10,20 +10,19 @@
 </div>
 <div class="nav fs-sm mb-4 d-lg-none">
     <span class="me-2">Masih ragu untuk membuat akun?</span>
-    <a class="nav-link text-decoration-underline p-0"
-       href="#benefits"
-       data-bs-toggle="offcanvas"
-       aria-controls="benefits">
+    <a class="nav-link text-decoration-underline p-0" href="#benefits" data-bs-toggle="offcanvas"
+        aria-controls="benefits">
         Lihat manfaatnya
     </a>
 </div>
 
-<form class="needs-validation" novalidate>
+<form class="needs-validation" novalidate action="{{ route('register.process') }}" method="POST">
+    @csrf
 
     <!-- Nama -->
     <div class="position-relative mb-4">
         <label for="register-name" class="form-label">Nama Lengkap</label>
-        <input type="text" class="form-control form-control-lg" id="register-name" required>
+        <input type="text" class="form-control form-control-lg" id="register-name" name="name" required>
         <div class="invalid-tooltip bg-transparent py-0">
             Nama wajib diisi!
         </div>
@@ -32,7 +31,7 @@
     <!-- NIM -->
     <div class="position-relative mb-4">
         <label for="register-nim" class="form-label">NIM</label>
-        <input type="text" class="form-control form-control-lg" id="register-nim" required>
+        <input type="text" class="form-control form-control-lg" id="register-nim" name="nim" required>
         <div class="invalid-tooltip bg-transparent py-0">
             NIM wajib diisi!
         </div>
@@ -41,7 +40,7 @@
     <!-- Instansi -->
     <div class="position-relative mb-4">
         <label for="register-instansi" class="form-label">Instansi</label>
-        <input type="text" class="form-control form-control-lg" id="register-instansi" required>
+        <input type="text" class="form-control form-control-lg" id="register-instansi" name="instansi" required>
         <div class="invalid-tooltip bg-transparent py-0">
             Instansi wajib diisi!
         </div>
@@ -50,7 +49,7 @@
     <!-- Email -->
     <div class="position-relative mb-4">
         <label for="register-email" class="form-label">Email</label>
-        <input type="email" class="form-control form-control-lg" id="register-email" required>
+        <input type="email" class="form-control form-control-lg" id="register-email" name="email" required>
         <div class="invalid-tooltip bg-transparent py-0">
             Masukkan alamat email yang valid!
         </div>
@@ -60,12 +59,8 @@
     <div class="mb-4">
         <label for="register-password" class="form-label">Kata sandi</label>
         <div class="password-toggle">
-            <input type="password"
-                   class="form-control form-control-lg"
-                   id="register-password"
-                   minlength="8"
-                   placeholder="Minimal 8 karakter"
-                   required>
+            <input type="password" class="form-control form-control-lg" id="register-password" name="password"
+                minlength="8" placeholder="Minimal 8 karakter" required>
             <div class="invalid-tooltip bg-transparent py-0">
                 Kata sandi tidak memenuhi kriteria yang ditentukan!
             </div>

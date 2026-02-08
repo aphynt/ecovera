@@ -48,6 +48,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/register', [AuthController::class, 'registerProcess'])->name('register.process');
 Route::get('/email-sent', [AuthController::class, 'emailSent'])->name('email.sent');
+Route::post('/email/verification-notification', [AuthController::class, 'resendVerification'])->name('verification.send');
 
 //Email Verification
 Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
@@ -151,11 +152,11 @@ Route::middleware(['auth'])->prefix('seller')->name('seller.')->group(function (
     Route::post('/unlock', [LockScreenController::class, 'unlock'])->name('unlock');
 
     // Order Management
-    Route::get('/orders', [\App\Http\Controllers\SellerOrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{uuid}', [\App\Http\Controllers\SellerOrderController::class, 'show'])->name('orders.show');
-    Route::patch('/orders/{uuid}/process', [\App\Http\Controllers\SellerOrderController::class, 'process'])->name('orders.process');
-    Route::patch('/orders/{uuid}/ship', [\App\Http\Controllers\SellerOrderController::class, 'ship'])->name('orders.ship');
-    Route::patch('/orders/{uuid}/update-tracking', [\App\Http\Controllers\SellerOrderController::class, 'updateTracking'])->name('orders.update-tracking');
+    Route::get('/orders', [SellerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{uuid}', [SellerOrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{uuid}/process', [SellerOrderController::class, 'process'])->name('orders.process');
+    Route::patch('/orders/{uuid}/ship', [SellerOrderController::class, 'ship'])->name('orders.ship');
+    Route::patch('/orders/{uuid}/update-tracking', [SellerOrderController::class, 'updateTracking'])->name('orders.update-tracking');
 
     // Return Management
     Route::get('/returns', [SellerReturnController::class, 'index'])->name('returns.index');
@@ -200,6 +201,7 @@ Route::middleware(['auth'])->prefix('buyer')->name('buyer.')->group(function () 
 
     // User Address
     Route::post('/address/store', [UserAddressController::class, 'store'])->name('address.store');
+    Route::put('/address/update/{uuid}', [UserAddressController::class, 'update'])->name('address.update');
     Route::patch('/address/set-default/{uuid}', [UserAddressController::class, 'setDefault'])->name('address.setDefault');
     Route::delete('/address/delete/{uuid}', [UserAddressController::class, 'delete'])->name('address.delete');
 });
