@@ -7,18 +7,18 @@
             <div class="logo-box">
                 <a href="{{ route('home') }}" class="logo logo-light">
                     <span class="logo-sm">
-                        <img src="{{ asset('admin/dist') }}/assets/images/logo-sm.png" alt="" height="22">
+                        <img src="{{ asset('logo/logo.png') }}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ asset('admin/dist') }}/assets/images/logo-light.png" alt="" height="24">
+                        <img src="{{ asset('logo/cover.png') }}" alt="" height="40">
                     </span>
                 </a>
                 <a href="{{ route('home') }}" class="logo logo-dark">
                     <span class="logo-sm">
-                        <img src="{{ asset('admin/dist') }}/assets/images/logo-sm.png" alt="" height="22">
+                        <img src="{{ asset('logo/logo.png') }}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ asset('logo') }}/cover.png" alt="" height="40">
+                        <img src="{{ asset('logo/cover.png') }}" alt="" height="40">
                     </span>
                 </a>
             </div>
@@ -120,7 +120,7 @@
                             <i data-feather="shopping-bag"></i>
                             <span> Pesanan </span>
                             @php
-                                $pendingOrders = \App\Models\Order::whereHas('items', function($q) {
+                                $pendingOrders = \App\Models\Order::whereHas('items', function ($q) {
                                     $q->where('seller_id', Auth::id());
                                 })->where('status', 'paid')->count();
                             @endphp

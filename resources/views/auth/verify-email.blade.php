@@ -15,6 +15,7 @@
 
 <form method="POST" action="{{ route('verification.send') }}">
     @csrf
+    <input type="hidden" name="email" value="{{ session('email') }}">
     <button type="submit" class="btn btn-lg btn-primary w-100 mb-3">
         Kirim Ulang Email Verifikasi
     </button>

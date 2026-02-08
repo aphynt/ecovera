@@ -119,11 +119,11 @@
                                                     @if($item->product && $item->product->primaryImage)
                                                         <img src="{{ asset('storage/' . $item->product->primaryImage->image_url) }}" 
                                                              alt="{{ $item->product->name }}"
-                                                             class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                                             class="rounded" style="width: 100%; max-width: 100px; height: 100px; object-fit: cover;">
                                                     @else
                                                         <div class="bg-light rounded d-flex align-items-center justify-content-center" 
-                                                             style="width: 60px; height: 60px;">
-                                                            <i data-feather="image" class="text-muted"></i>
+                                                             style="width: 100px; height: 100px;">
+                                                            <i data-feather="image" class="text-muted" style="width: 40px; height: 40px;"></i>
                                                         </div>
                                                     @endif
                                                 </div>

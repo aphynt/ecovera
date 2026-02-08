@@ -2,7 +2,6 @@
 @include('admin.layout.topbar')
 @include('admin.layout.sidebar')
 
-
 <div class="content">
 
     <!-- Start Content-->
@@ -10,7 +9,7 @@
 
         <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
             <div class="flex-grow-1">
-                <h4 class="fs-18 fw-semibold m-0">Admin Dashboard</h4>
+                <h4 class="fs-18 fw-semibold m-0">Seller Dashboard</h4>
             </div>
         </div>
 
@@ -226,7 +225,7 @@
                                     @forelse($recentOrders as $order)
                                         <tr>
                                             <td>
-                                                <a href="{{ route('admin.orders.show', $order->uuid) }}"
+                                                <a href="{{ route('seller.orders.show', $order->uuid) }}"
                                                     class="text-primary">#{{ $order->order_code }}</a>
                                             </td>
                                             <td>
