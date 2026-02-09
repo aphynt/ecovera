@@ -155,6 +155,17 @@
     </div>
 </div>
 
-
+<script>
+    // Set cooldown saat form registrasi disubmit
+    const registerForm = document.querySelector('form.needs-validation');
+    const COOLDOWN_TIME = 30; // seconds
+    const STORAGE_KEY = 'resend_cooldown_end';
+    
+    registerForm.addEventListener('submit', function(e) {
+        // Set cooldown untuk tombol resend email
+        const cooldownEnd = Date.now() + (COOLDOWN_TIME * 1000);
+        localStorage.setItem(STORAGE_KEY, cooldownEnd);
+    });
+</script>
 
 @include('auth.layout.footer')

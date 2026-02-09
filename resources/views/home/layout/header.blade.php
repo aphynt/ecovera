@@ -134,13 +134,15 @@
 
             <!-- Search bar visible on screens > 768px wide (md breakpoint) -->
             <div class="position-relative w-100 d-none d-md-block me-3 me-xl-4">
-                <input type="search" class="form-control form-control-lg rounded-pill" placeholder="Cari produk..."
-                    aria-label="Search">
-                <button type="button"
-                    class="btn btn-icon btn-ghost fs-lg btn-secondary text-bo border-0 position-absolute top-0 end-0 rounded-circle mt-1 me-1"
-                    aria-label="Search button">
-                    <i class="ci-search"></i>
-                </button>
+                <form action="{{ route('products.all') }}" method="GET">
+                    <input type="search" name="search" class="form-control form-control-lg rounded-pill" 
+                           placeholder="Cari produk..." aria-label="Search" value="{{ request('search') }}">
+                    <button type="submit"
+                        class="btn btn-icon btn-ghost fs-lg btn-secondary text-bo border-0 position-absolute top-0 end-0 rounded-circle mt-1 me-1"
+                        aria-label="Search button">
+                        <i class="ci-search"></i>
+                    </button>
+                </form>
             </div>
 
             <!-- Delivery options toggle visible on screens > 1200px wide (xl breakpoint) -->
@@ -333,11 +335,13 @@
         <!-- Search collapse available on screens < 768px wide (md breakpoint) -->
         <div class="collapse d-md-none" id="searchBar">
             <div class="container pt-2 pb-3">
-                <div class="position-relative">
-                    <i class="ci-search position-absolute top-50 translate-middle-y d-flex fs-lg ms-3"></i>
-                    <input type="search" class="form-control form-icon-start rounded-pill"
-                        placeholder="Search for products" data-autofocus="collapse">
-                </div>
+                <form action="{{ route('products.all') }}" method="GET">
+                    <div class="position-relative">
+                        <i class="ci-search position-absolute top-50 translate-middle-y d-flex fs-lg ms-3"></i>
+                        <input type="search" name="search" class="form-control form-icon-start rounded-pill"
+                            placeholder="Cari produk..." data-autofocus="collapse" value="{{ request('search') }}">
+                    </div>
+                </form>
             </div>
         </div>
     </header>

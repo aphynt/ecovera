@@ -57,7 +57,7 @@ class HomeController extends Controller
         return view('home.product', compact('data'));
     }
 
-    public function allProducts()
+    public function allProducts(Request $request)
     {
         $categories = CategoryProduct::where('is_active', true)
             ->withCount([
@@ -67,10 +67,18 @@ class HomeController extends Controller
             ])
             ->get();
 
-        $products = Products::with(['primaryImage', 'category'])
-            ->where('status', 'active')
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
+        $productsQuery = Products::with(['primaryImage', 'category'])
+            ->where('status', 'active');
+
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $productsQuery->where('name', 'like', "%{$search}%");
+        }
+
+        $products = $productsQuery->orderBy('created_at', 'desc')
+            ->paginate(12)
+            ->appends(['search' => $request->search]);
 
         $data = [
             'categories' => $categories,
@@ -83,7 +91,7 @@ class HomeController extends Controller
         return view('home.products-list', compact('data'));
     }
 
-    public function productsByCategory($slug)
+    public function productsByCategory(Request $request, $slug)
     {
         $category = CategoryProduct::where('slug', $slug)
             ->where('is_active', true)
@@ -97,11 +105,19 @@ class HomeController extends Controller
             ])
             ->get();
 
-        $products = Products::with(['primaryImage', 'category'])
+        $productsQuery = Products::with(['primaryImage', 'category'])
             ->where('category_id', $category->id)
-            ->where('status', 'active')
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
+            ->where('status', 'active');
+
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $productsQuery->where('name', 'like', "%{$search}%");
+        }
+
+        $products = $productsQuery->orderBy('created_at', 'desc')
+            ->paginate(12)
+            ->appends(['search' => $request->search]);
 
         $data = [
             'categories' => $categories,
