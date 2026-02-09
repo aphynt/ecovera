@@ -122,6 +122,12 @@
                     data-bs-target="#privacyPolicyModal">Kebijakan Privasi</a>
             </label>
         </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="subscribe" name="is_subscribed" value="1">
+            <label for="subscribe" class="form-check-label">
+                Saya ingin berlangganan informasi dan pembaruan dari EcoVera
+            </label>
+        </div>
     </div>
 
     <!-- Submit -->

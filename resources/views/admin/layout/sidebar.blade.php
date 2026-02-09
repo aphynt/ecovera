@@ -158,6 +158,18 @@
                             <span> Users </span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('admin.complaints.index') }}" class="tp-link">
+                            <i data-feather="message-circle"></i>
+                            <span> Pengaduan </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.announcement.create') }}" class="tp-link">
+                            <i data-feather="send"></i>
+                            <span> Pengumuman </span>
+                        </a>
+                    </li>
                 @endif
 
                 @if (Auth::user()->role == 'admin')

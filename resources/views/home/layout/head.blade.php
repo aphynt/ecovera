@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover">
 
     <!-- SEO Meta Tags -->
     <title>{{ config('app.name') }}</title>
@@ -12,10 +13,12 @@
     <link rel="apple-touch-icon" href="{{ asset('logo') }}/logo.png">
 
     <!-- Preloaded local web font (Inter) -->
-    <link rel="preload" href="{{ asset('home') }}/assets/fonts/inter-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('home') }}/assets/fonts/inter-variable-latin.woff2" as="font" type="font/woff2"
+        crossorigin>
 
     <!-- Font icons -->
-    <link rel="preload" href="{{ asset('home') }}/assets/icons/cartzilla-icons.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('home') }}/assets/icons/cartzilla-icons.woff2" as="font" type="font/woff2"
+        crossorigin>
     <link rel="stylesheet" href="{{ asset('home') }}/assets/icons/cartzilla-icons.min.css">
 
     <!-- Vendor styles -->
@@ -25,11 +28,14 @@
 
     <!-- Bootstrap + Theme styles -->
     <link rel="preload" href="{{ asset('home') }}/assets/css/theme.min.css" as="style">
-    {{-- <link rel="preload" href="{{ asset('home') }}/assets/css/theme.rtl.min.css" as="style"> --}}
+    {{--
+    <link rel="preload" href="{{ asset('home') }}/assets/css/theme.rtl.min.css" as="style"> --}}
     <link rel="stylesheet" href="{{ asset('home') }}/assets/css/theme.min.css" id="theme-styles">
 
     {{-- Sweetalert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- FontAwesome --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-
-

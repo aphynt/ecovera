@@ -19,6 +19,9 @@ use App\Http\Controllers\AdminReturnController;
 use App\Http\Controllers\SellerReturnController;
 use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\AdminComplaintController;
 use Illuminate\Support\Facades\Mail;
 
 // Route::get('/', function () {
@@ -31,6 +34,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products', [HomeController::class, 'allProducts'])->name('products.all');
 Route::get('/products/category/{slug}', [HomeController::class, 'productsByCategory'])->name('products.category');
 Route::get('/product/{uuid}', [HomeController::class, 'productDetail'])->name('product.detail');
+Route::get('/about', [HomeController::class, 'about'])->name('about');
 
 //Cart
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
@@ -59,6 +63,10 @@ Route::post('/send-reset-link', [AuthController::class, 'sendResetLink'])->name(
 Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])->name('passwordReset');
 Route::post('/update-password', [AuthController::class, 'updatePassword'])->name('updatePassword');
 Route::post('/checkout/midtrans-callback', [CheckoutController::class, 'midtransCallback'])->name('midtrans.callback');
+
+// Complaint
+Route::get('/complaint', [ComplaintController::class, 'index'])->name('complaint.index');
+Route::post('/complaint', [ComplaintController::class, 'store'])->name('complaint.store');
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
 
@@ -116,6 +124,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/returns/{uuid}', [AdminReturnController::class, 'show'])->name('returns.show');
     Route::post('/returns/{uuid}/process-refund', [AdminReturnController::class, 'processRefund'])->name('returns.process-refund');
     Route::post('/returns/{uuid}/cancel-refund', [AdminReturnController::class, 'cancelRefund'])->name('returns.cancel-refund');
+    // Announcement
+    Route::get('/announcement/create', [AnnouncementController::class, 'create'])->name('announcement.create');
+    Route::post('/announcement/store', [AnnouncementController::class, 'store'])->name('announcement.store');
+
+    // Complaint Management
+    Route::get('/complaints', [AdminComplaintController::class, 'index'])->name('complaints.index');
+    Route::get('/complaints/{id}', [AdminComplaintController::class, 'show'])->name('complaints.show');
+    Route::put('/complaints/{id}', [AdminComplaintController::class, 'update'])->name('complaints.update');
 });
 
 // Seller Routes
