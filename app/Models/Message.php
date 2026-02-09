@@ -10,6 +10,8 @@ class Message extends Model
         'sender_id',
         'receiver_id',
         'message',
+        'product_id',
+        'order_id',
         'is_read',
     ];
 
@@ -21,5 +23,15 @@ class Message extends Model
     public function receiver()
     {
         return $this->belongsTo(User::class, 'receiver_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Products::class, 'product_id');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id');
     }
 }

@@ -74,12 +74,16 @@ class ChatController extends Controller
             }
         }
 
-        // Ambil pesan antara saya dan dia
-        $messages = Message::where(function ($q) use ($myId, $id) {
-            $q->where('sender_id', $myId)->where('receiver_id', $id);
-        })->orWhere(function ($q) use ($myId, $id) {
-            $q->where('sender_id', $id)->where('receiver_id', $myId);
-        })->orderBy('created_at', 'asc')->get();
+        // Ambil pesan antara saya dan dia dengan relasi product dan order
+        $messages = Message::with([
+            'product.primaryImage',
+            'order.orderItems.product.primaryImage'
+        ])
+            ->where(function ($q) use ($myId, $id) {
+                $q->where('sender_id', $myId)->where('receiver_id', $id);
+            })->orWhere(function ($q) use ($myId, $id) {
+                $q->where('sender_id', $id)->where('receiver_id', $myId);
+            })->orderBy('created_at', 'asc')->get();
 
         // Tandai sebagai terbaca jika saya yang menerima
         Message::where('sender_id', $id)
@@ -97,11 +101,18 @@ class ChatController extends Controller
             'message' => 'required|string',
         ]);
 
-        Message::create([
+        $messageData = [
             'sender_id' => Auth::id(),
             'receiver_id' => $id,
             'message' => $request->message,
-        ]);
+        ];
+
+        // Add product_id if exists
+        if ($request->has('product_id') && $request->product_id) {
+            $messageData['product_id'] = $request->product_id;
+        }
+
+        Message::create($messageData);
 
         return redirect()->route('chat.show', $id);
     }

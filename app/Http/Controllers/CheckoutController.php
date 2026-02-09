@@ -233,6 +233,26 @@ class CheckoutController extends Controller
                 'payment_status' => 'success',
                 'paid_at' => now()
             ]);
+
+            // Send auto-chat notification to seller for Midtrans payment
+            $order = DB::table('orders')->where('id', $orderId)->first();
+            if ($order) {
+                $orderItems = DB::table('order_items')
+                    ->join('products', 'products.id', '=', 'order_items.product_id')
+                    ->join('stores', 'stores.id', '=', 'products.store_id')
+                    ->where('order_items.order_id', $orderId)
+                    ->select(
+                        'order_items.*',
+                        'stores.user_id as seller_id',
+                        'products.name as product_name'
+                    )
+                    ->get();
+
+                if ($orderItems->isNotEmpty()) {
+                    $buyer = DB::table('users')->where('id', $order->buyer_id)->first();
+                    $this->sendOrderNotificationToSellers($orderId, $order->order_code, $orderItems, $buyer);
+                }
+            }
         }
     }
 
@@ -287,30 +307,15 @@ class CheckoutController extends Controller
 
             $productListText = implode("\n\n", $productList);
 
-            // Create rich chat message template
-            $message = "🛒 PESANAN BARU COD 🛒\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━\n\n";
-            $message .= "📋 Kode: {$orderCode}\n";
-            $message .= "👤 Pembeli: {$buyer->name}\n";
-            $message .= "💰 Pembayaran: COD (Bayar di Tempat)\n\n";
-            $message .= "📦 PRODUK PESANAN:\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "{$productListText}\n\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "💵 Total Anda: Rp " . number_format($sellerTotal, 0, ',', '.') . "\n\n";
-            $message .= "🏠 ALAMAT PENGIRIMAN:\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "{$addressText}\n\n";
-            $message .= "📞 Kontak: {$buyerPhone}\n\n";
-            $message .= "✅ Status: Menunggu Diproses\n";
-            $message .= "⏰ Waktu: " . now()->format('d/m/Y H:i') . "\n\n";
-            $message .= "Mohon segera siapkan pesanan ini! 🚀";
+            // Create simple message with order card (card will be rendered in view)
+            $message = "Pesanan baru telah diterima. Mohon segera diproses!";
 
-            // Send message to seller
+            // Send message to seller with order_id
             Message::create([
                 'sender_id' => $buyer->id,
                 'receiver_id' => $sellerId,
                 'message' => $message,
+                'order_id' => $orderId,
                 'is_read' => false,
                 'created_at' => now(),
                 'updated_at' => now(),

@@ -68,6 +68,59 @@
         transform: translateY(-1px);
         transition: transform 0.2s ease;
     }
+
+    /* Product card hover effects */
+    .border.rounded.p-2.bg-white:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+
+    /* Product card inside message bubble */
+    .message-bubble a .border.rounded {
+        transition: all 0.2s ease;
+    }
+
+    .message-bubble a .border.rounded:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        transform: scale(1.02);
+    }
+
+    .message-sent a .border.rounded:hover {
+        box-shadow: 0 2px 8px rgba(255,255,255,0.3);
+    }
+
+    /* Order card styles */
+    .order-card {
+        transition: all 0.2s ease;
+    }
+
+    a:has(.order-card):hover .order-card {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        transform: translateY(-2px);
+    }
+
+    .message-sent a:has(.order-card):hover .order-card {
+        box-shadow: 0 4px 12px rgba(255,255,255,0.3);
+    }
+
+    .products-grid {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .products-grid::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .products-grid::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.05);
+        border-radius: 4px;
+    }
+
+    .products-grid::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.2);
+        border-radius: 4px;
+    }
 </style>
 
 <main class="content-wrapper">
@@ -136,7 +189,142 @@
                             @foreach($messages as $msg)
                                 <div
                                     class="message-bubble {{ $msg->sender_id == Auth::id() ? 'message-sent' : 'message-received' }}">
+                                    
+                                    {{-- Product Card in Message (if has product) --}}
+                                    @if($msg->product)
+                                        <a href="{{ route('product.detail', $msg->product->uuid) }}" 
+                                           class="text-decoration-none d-block mb-2" 
+                                           target="_blank"
+                                           onclick="event.stopPropagation();">
+                                            <div class="border rounded p-2" 
+                                                 style="background-color: {{ $msg->sender_id == Auth::id() ? 'rgba(255,255,255,0.2)' : '#f8f9fa' }}; max-width: 250px;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0 me-2" style="width: 50px; height: 50px;">
+                                                        <img src="{{ $msg->product->primaryImage ? asset('storage/' . $msg->product->primaryImage->image_url) : asset('logo/logo.png') }}"
+                                                            alt="{{ $msg->product->name }}" 
+                                                            class="w-100 h-100 object-fit-cover rounded border">
+                                                    </div>
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <div class="small fw-medium text-truncate {{ $msg->sender_id == Auth::id() ? 'text-white' : 'text-dark' }}">
+                                                            {{ $msg->product->name }}
+                                                        </div>
+                                                        <div class="small fw-bold {{ $msg->sender_id == Auth::id() ? 'text-white opacity-90' : 'text-primary' }}">
+                                                            Rp {{ number_format($msg->product->price, 0, ',', '.') }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="ms-1 {{ $msg->sender_id == Auth::id() ? 'text-white' : 'text-muted' }}">
+                                                        <i class="ci-arrow-right" style="font-size: 0.8rem;"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    {{-- Order Card in Message (if has order) --}}
+                                    @if($msg->order)
+                                        @php
+                                            $order = $msg->order;
+                                            $statusColors = [
+                                                'pending' => ['bg' => '#ffc107', 'text' => '#000', 'label' => 'Menunggu Pembayaran'],
+                                                'processed' => ['bg' => '#17a2b8', 'text' => '#fff', 'label' => 'Diproses'],
+                                                'paid' => ['bg' => '#28a745', 'text' => '#fff', 'label' => 'Sudah Dibayar'],
+                                                'shipped' => ['bg' => '#007bff', 'text' => '#fff', 'label' => 'Dikirim'],
+                                                'delivered' => ['bg' => '#28a745', 'text' => '#fff', 'label' => 'Selesai'],
+                                                'cancelled' => ['bg' => '#dc3545', 'text' => '#fff', 'label' => 'Dibatalkan'],
+                                            ];
+                                            $statusInfo = $statusColors[$order->status] ?? ['bg' => '#6c757d', 'text' => '#fff', 'label' => ucfirst($order->status)];
+                                            
+                                            // Determine route based on user role
+                                            $isBuyer = Auth::id() == $order->buyer_id;
+                                            $orderRoute = $isBuyer 
+                                                ? route('buyer.orders.detail', $order->uuid)
+                                                : route('seller.orders.show', $order->uuid);
+                                        @endphp
+                                        
+                                        <a href="{{ $orderRoute }}" 
+                                           class="text-decoration-none d-block mb-2" 
+                                           target="_blank"
+                                           onclick="event.stopPropagation();">
+                                        <div class="order-card border rounded p-2" 
+                                             style="background-color: {{ $msg->sender_id == Auth::id() ? 'rgba(255,255,255,0.15)' : '#ffffff' }}; max-width: 320px; cursor: pointer;">
+                                            
+                                            {{-- Order Header --}}
+                                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="ci-package {{ $msg->sender_id == Auth::id() ? 'text-white' : 'text-primary' }} me-2"></i>
+                                                    <span class="small fw-bold {{ $msg->sender_id == Auth::id() ? 'text-white' : 'text-dark' }}">
+                                                        {{ $order->order_code }}
+                                                    </span>
+                                                </div>
+                                                <span class="badge rounded-pill" style="background-color: {{ $statusInfo['bg'] }}; color: {{ $statusInfo['text'] }}; font-size: 0.7rem;">
+                                                    {{ $statusInfo['label'] }}
+                                                </span>
+                                            </div>
+
+                                            {{-- Products Grid --}}
+                                            <div class="products-grid mb-2">
+                                                @foreach($order->orderItems->take(3) as $item)
+                                                    <div class="d-flex align-items-center mb-2 p-2 rounded" 
+                                                         style="background-color: {{ $msg->sender_id == Auth::id() ? 'rgba(255,255,255,0.1)' : '#f8f9fa' }};">
+                                                        <div class="flex-shrink-0 me-2" style="width: 45px; height: 45px;">
+                                                            <img src="{{ $item->product->primaryImage ? asset('storage/' . $item->product->primaryImage->image_url) : asset('logo/logo.png') }}"
+                                                                alt="{{ $item->product->name }}" 
+                                                                class="w-100 h-100 object-fit-cover rounded border">
+                                                        </div>
+                                                        <div class="flex-grow-1 overflow-hidden">
+                                                            <div class="small text-truncate {{ $msg->sender_id == Auth::id() ? 'text-white' : 'text-dark' }}" style="font-size: 0.8rem;">
+                                                                {{ $item->product->name }}
+                                                            </div>
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <span class="small {{ $msg->sender_id == Auth::id() ? 'text-white opacity-75' : 'text-muted' }}" style="font-size: 0.75rem;">
+                                                                    {{ $item->quantity }}x
+                                                                </span>
+                                                                <span class="small fw-bold {{ $msg->sender_id == Auth::id() ? 'text-white' : 'text-primary' }}" style="font-size: 0.75rem;">
+                                                                    Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                                
+                                                @if($order->orderItems->count() > 3)
+                                                    <div class="text-center small {{ $msg->sender_id == Auth::id() ? 'text-white opacity-75' : 'text-muted' }}" style="font-size: 0.75rem;">
+                                                        +{{ $order->orderItems->count() - 3 }} produk lainnya
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            {{-- Order Summary --}}
+                                            <div class="border-top pt-2">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="small {{ $msg->sender_id == Auth::id() ? 'text-white opacity-75' : 'text-muted' }}" style="font-size: 0.75rem;">
+                                                        <i class="ci-package me-1"></i>{{ $order->orderItems->count() }} Produk
+                                                    </span>
+                                                    <span class="small {{ $msg->sender_id == Auth::id() ? 'text-white opacity-75' : 'text-muted' }}" style="font-size: 0.75rem;">
+                                                        <i class="ci-time me-1"></i>{{ $order->created_at->format('d/m/Y H:i') }}
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="small fw-medium {{ $msg->sender_id == Auth::id() ? 'text-white' : 'text-dark' }}">
+                                                        Total Pesanan
+                                                    </span>
+                                                    <span class="fw-bold {{ $msg->sender_id == Auth::id() ? 'text-white' : 'text-danger' }}" style="font-size: 1rem;">
+                                                        Rp {{ number_format($order->grand_total, 0, ',', '.') }}
+                                                    </span>
+                                                </div>
+                                                <div class="text-center mt-2 pt-2 border-top">
+                                                    <small class="small {{ $msg->sender_id == Auth::id() ? 'text-white opacity-75' : 'text-primary' }}" style="font-size: 0.7rem;">
+                                                        <i class="ci-arrow-right me-1"></i>Klik untuk lihat detail pesanan
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </a>
+                                    @endif
+
+                                    {{-- Message Text --}}
                                     <div style="white-space: pre-line; word-wrap: break-word;">{!! nl2br(e($msg->message)) !!}</div>
+                                    
                                     <span class="message-time {{ $msg->sender_id == Auth::id() ? 'text-end' : '' }}">
                                         {{ $msg->created_at->format('H:i') }}
                                         @if($msg->sender_id == Auth::id())
@@ -147,12 +335,37 @@
                             @endforeach
                         </div>
 
+                        {{-- Product Card (If asking about specific product) --}}
+                        @if(isset($product) && $product)
+                            <a href="{{ route('product.detail', $product->uuid) }}" class="text-decoration-none mb-3 d-block" target="_blank">
+                                <div class="border rounded p-2 bg-white" style="max-width: 300px; transition: all 0.2s ease;">
+                                    <div class="d-flex align-items-center" style="cursor: pointer;">
+                                        <div class="flex-shrink-0 me-3" style="width: 60px; height: 60px;">
+                                            <img src="{{ $product->primaryImage ? asset('storage/' . $product->primaryImage->image_url) : asset('logo/logo.png') }}"
+                                                alt="{{ $product->name }}" 
+                                                class="w-100 h-100 object-fit-cover rounded border">
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h6 class="mb-1 text-dark text-truncate" style="font-size: 0.9rem;">{{ $product->name }}</h6>
+                                            <div class="text-primary fw-bold">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                                        </div>
+                                        <div class="ms-2 text-muted">
+                                            <i class="ci-arrow-right"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        @endif
+
                         {{-- Input Form --}}
                         <form action="{{ route('chat.store', $otherUser->id) }}" method="POST">
                             @csrf
+                            @if(isset($product) && $product)
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            @endif
                             <div class="input-group">
                                 <input type="text" name="message" class="form-control"
-                                    value="{{ isset($product) && $product ? 'Halo, apakah stok ' . $product->name . ' masih ada? ' . route('product.detail', $product->uuid) : '' }}"
+                                    value="{{ isset($product) && $product ? 'Halo, apakah stok produk ini masih ada?' : '' }}"
                                     placeholder="Tulis pesan..." required autofocus>
                                 <button class="btn btn-primary" type="submit">
                                     <i class="ci-send me-1"></i> Kirim
