@@ -16,54 +16,90 @@
     </a>
 </div>
 
+@if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Terjadi kesalahan!</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
 <form class="needs-validation" novalidate action="{{ route('register.process') }}" method="POST">
     @csrf
 
     <!-- Nama -->
     <div class="position-relative mb-4">
         <label for="register-name" class="form-label">Nama Lengkap</label>
-        <input type="text" class="form-control form-control-lg" id="register-name" name="name" required>
-        <div class="invalid-tooltip bg-transparent py-0">
-            Nama wajib diisi!
-        </div>
+        <input type="text" class="form-control form-control-lg @error('name') is-invalid @enderror" 
+               id="register-name" name="name" value="{{ old('name') }}" required>
+        @error('name')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @else
+            <div class="invalid-tooltip bg-transparent py-0">
+                Nama wajib diisi!
+            </div>
+        @enderror
     </div>
 
     <!-- NIM -->
     <div class="position-relative mb-4">
         <label for="register-nim" class="form-label">NIM</label>
-        <input type="text" class="form-control form-control-lg" id="register-nim" name="nim" required>
-        <div class="invalid-tooltip bg-transparent py-0">
-            NIM wajib diisi!
-        </div>
+        <input type="text" class="form-control form-control-lg @error('nim') is-invalid @enderror" 
+               id="register-nim" name="nim" value="{{ old('nim') }}" required>
+        @error('nim')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @else
+            <div class="invalid-tooltip bg-transparent py-0">
+                NIM wajib diisi!
+            </div>
+        @enderror
     </div>
 
     <!-- Instansi -->
     <div class="position-relative mb-4">
         <label for="register-instansi" class="form-label">Instansi</label>
-        <input type="text" class="form-control form-control-lg" id="register-instansi" name="instansi" required>
-        <div class="invalid-tooltip bg-transparent py-0">
-            Instansi wajib diisi!
-        </div>
+        <input type="text" class="form-control form-control-lg @error('instansi') is-invalid @enderror" 
+               id="register-instansi" name="instansi" value="{{ old('instansi') }}" required>
+        @error('instansi')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @else
+            <div class="invalid-tooltip bg-transparent py-0">
+                Instansi wajib diisi!
+            </div>
+        @enderror
     </div>
 
     <!-- Email -->
     <div class="position-relative mb-4">
         <label for="register-email" class="form-label">Email</label>
-        <input type="email" class="form-control form-control-lg" id="register-email" name="email" required>
-        <div class="invalid-tooltip bg-transparent py-0">
-            Masukkan alamat email yang valid!
-        </div>
+        <input type="email" class="form-control form-control-lg @error('email') is-invalid @enderror" 
+               id="register-email" name="email" value="{{ old('email') }}" required>
+        @error('email')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @else
+            <div class="invalid-tooltip bg-transparent py-0">
+                Masukkan alamat email yang valid!
+            </div>
+        @enderror
     </div>
 
     <!-- Password -->
     <div class="mb-4">
         <label for="register-password" class="form-label">Kata sandi</label>
         <div class="password-toggle">
-            <input type="password" class="form-control form-control-lg" id="register-password" name="password"
-                minlength="8" placeholder="Minimal 8 karakter" required>
-            <div class="invalid-tooltip bg-transparent py-0">
-                Kata sandi tidak memenuhi kriteria yang ditentukan!
-            </div>
+            <input type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" 
+                   id="register-password" name="password" minlength="8" placeholder="Minimal 8 karakter" required>
+            @error('password')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @else
+                <div class="invalid-tooltip bg-transparent py-0">
+                    Kata sandi tidak memenuhi kriteria yang ditentukan!
+                </div>
+            @enderror
             <label class="password-toggle-button fs-lg" aria-label="Tampilkan/sembunyikan kata sandi">
                 <input type="checkbox" class="btn-check">
             </label>
