@@ -151,4 +151,21 @@ class HomeController extends Controller
 
         return view('home.product-detail', compact('data'));
     }
+
+    public function about()
+    {
+        $category = CategoryProduct::where('is_active', true)
+            ->withCount([
+                'products as products_count' => function ($q) {
+                    $q->where('status', 'active');
+                }
+            ])
+            ->get();
+
+        $data = [
+            'category' => $category,
+        ];
+
+        return view('home.about', compact('data'));
+    }
 }

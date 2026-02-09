@@ -37,6 +37,7 @@ class User extends Authenticatable
         'is_active',
         'avatar',
         'uuid',
+        // 'is_subscribed',
         'verification_token',
     ];
 
