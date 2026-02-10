@@ -27,7 +27,8 @@ class UsersController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $id,
             'phone' => 'nullable|string',
-            'password' => 'nullable|min:6'
+            'password' => 'nullable|min:6',
+            'role' => 'required|in:buyer,seller,admin'
         ], [
             'name.required' => 'Nama wajib diisi.',
             'name.string' => 'Nama harus berupa teks.',
@@ -38,8 +39,15 @@ class UsersController extends Controller
 
             'phone.string' => 'Nomor telepon harus berupa teks.',
 
-            'password.min' => 'Password minimal harus 6 karakter.'
+            'password.min' => 'Password minimal harus 6 karakter.',
+            'role.required' => 'Role wajib dipilih.',
+            'role.in' => 'Role tidak valid.'
         ]);
+
+        // Restriction: Seller cannot be downgraded to Buyer
+        if ($user->role === 'seller' && $request->role === 'buyer') {
+            return redirect()->back()->with('error', 'Akun Seller tidak dapat diubah menjadi Buyer.');
+        }
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         } else {

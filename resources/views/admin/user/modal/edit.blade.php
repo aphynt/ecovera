@@ -27,6 +27,15 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select name="role" id="edit-role" class="form-select">
+                            <option value="buyer">Buyer</option>
+                            <option value="seller">Seller</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label">Password</label>
                         <input type="password" name="password" class="form-control">
                     </div>
