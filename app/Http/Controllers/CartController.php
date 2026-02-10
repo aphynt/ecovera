@@ -35,6 +35,7 @@ class CartController extends Controller
                 'products.id',
                 'products.name',
                 'products.weight',
+                'products.stock',
                 'cart_items.quantity',
                 'cart_items.price',
                 DB::raw('(cart_items.quantity * cart_items.price) as subtotal')
@@ -74,12 +75,22 @@ class CartController extends Controller
             ->first();
 
         if ($cartItem) {
+            // Check if adding 1 more exceeds stock
+            if ($cartItem->quantity + 1 > $product->stock) {
+                return redirect()->back()->with('error', 'Stok produk tidak mencukupi. Stok tersedia: ' . $product->stock);
+            }
+            
             CartItem::where('id', $cartItem->id)
                 ->update([
                     'quantity' => $cartItem->quantity + 1,
                     'updated_at' => now(),
                 ]);
         } else {
+            // Check if product has stock
+            if ($product->stock < 1) {
+                return redirect()->back()->with('error', 'Produk sedang tidak tersedia.');
+            }
+            
             CartItem::insert([
                 'uuid' => Str::uuid(),
                 'cart_id' => $cartId,
@@ -99,5 +110,48 @@ class CartController extends Controller
         CartItem::where('id', $id)->delete();
 
         return back();
+    }
+
+    public function updateQuantity(Request $request, $id)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $cartItem = CartItem::find($id);
+        
+        if (!$cartItem) {
+            return response()->json(['success' => false, 'message' => 'Item tidak ditemukan.'], 404);
+        }
+
+        $product = Products::find($cartItem->product_id);
+        
+        if ($request->quantity > $product->stock) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Stok tidak mencukupi. Stok tersedia: ' . $product->stock,
+                'available_stock' => $product->stock
+            ], 400);
+        }
+
+        $cartItem->quantity = $request->quantity;
+        $cartItem->save();
+
+        $subtotal = $cartItem->quantity * $cartItem->price;
+        
+        // Calculate new total
+        $cart = Cart::find($cartItem->cart_id);
+        $total = DB::table('cart_items')
+            ->where('cart_id', $cart->id)
+            ->sum(DB::raw('quantity * price'));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jumlah produk berhasil diperbarui.',
+            'subtotal' => $subtotal,
+            'total' => $total,
+            'formatted_subtotal' => 'Rp ' . number_format($subtotal, 0, ',', '.'),
+            'formatted_total' => 'Rp ' . number_format($total, 0, ',', '.')
+        ]);
     }
 }

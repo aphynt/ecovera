@@ -39,6 +39,7 @@ Route::get('/about', [HomeController::class, 'about'])->name('about');
 //Cart
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
 Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+Route::patch('/cart/item/{id}/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.update.quantity');
 Route::delete('/cart/item/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
 

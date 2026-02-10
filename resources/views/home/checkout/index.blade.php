@@ -56,6 +56,15 @@
                                     </td>
                                     <td class="text-center">
                                         {{ $item->quantity }}
+                                        @if($item->stock < $item->quantity)
+                                            <div class="text-danger fs-xs mt-1">
+                                                <i class="ci-info-circle"></i> Stok tidak cukup!
+                                            </div>
+                                        @elseif($item->stock < 10)
+                                            <div class="text-warning fs-xs mt-1">
+                                                Stok tersisa: {{ $item->stock }}
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="text-end fw-semibold">
                                         Rp {{ number_format($item->subtotal, 0, ',', '.') }}

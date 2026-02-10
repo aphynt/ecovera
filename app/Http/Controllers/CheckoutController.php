@@ -29,6 +29,7 @@ class CheckoutController extends Controller
                 'products.id',
                 'products.name',
                 'products.weight',
+                'products.stock',
                 'cart_items.quantity',
                 'cart_items.price',
                 DB::raw('(cart_items.quantity * cart_items.price) as subtotal')
@@ -75,12 +76,29 @@ class CheckoutController extends Controller
                 ->select(
                     'cart_items.*',
                     'stores.user_id as seller_id',
-                    'products.name as product_name'
+                    'products.name as product_name',
+                    'products.stock as product_stock'
                 )
                 ->get();
 
             if ($cartItems->isEmpty()) {
                 return back()->with('info', 'Keranjang kosong.');
+            }
+
+            // === VALIDATE STOCK ===
+            foreach ($cartItems as $item) {
+                if ($item->quantity > $item->product_stock) {
+                    DB::rollBack();
+                    return back()->with('error', 
+                        "Stok produk '{$item->product_name}' tidak mencukupi. " .
+                        "Stok tersedia: {$item->product_stock}, diminta: {$item->quantity}");
+                }
+                
+                if ($item->product_stock < 1) {
+                    DB::rollBack();
+                    return back()->with('error', 
+                        "Produk '{$item->product_name}' sedang tidak tersedia.");
+                }
             }
 
             // === TOTAL ===
@@ -119,6 +137,11 @@ class CheckoutController extends Controller
                     'price' => $item->price,
                     'subtotal' => $item->price * $item->quantity,
                 ]);
+                
+                // Reduce stock
+                DB::table('products')
+                    ->where('id', $item->product_id)
+                    ->decrement('stock', $item->quantity);
             }
 
             if ($request->payment_method === 'cod') {
