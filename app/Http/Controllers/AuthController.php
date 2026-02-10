@@ -6,11 +6,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Postmark\PostmarkClient;
-use PHPMailer\PHPMailer\PHPMailer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
+use App\Helpers\MailHelper;
 
 class AuthController extends Controller
 {
@@ -99,28 +98,12 @@ class AuthController extends Controller
 
         $resetLink = url('/reset-password/' . $token . '?email=' . $request->email);
 
-        $mail = new PHPMailer(true);
+        $resetLink = url('/reset-password/' . $token . '?email=' . $request->email);
 
-        $mail->isSMTP();
-        $mail->Host = 'ecovera.id';
-        $mail->SMTPAuth = true;
-        $mail->AuthType = 'LOGIN';
-        $mail->Username = 'no-reply@ecovera.id';
-        $mail->Password = 'sims100%';
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
-
-        $html = view('auth.emails.forgot-password', [
+        MailHelper::send($request->email, 'Reset Password', 'auth.emails.forgot-password', [
             'name' => $user->name,
             'resetLink' => $resetLink
-        ])->render();
-
-        $mail->setFrom('no-reply@ecovera.id', 'Ecovera');
-        $mail->addAddress($request->email);
-        $mail->isHTML(true);
-        $mail->Subject = 'Reset Password';
-        $mail->Body = $html;
-        $mail->send();
+        ]);
 
         return back()->with('success', 'Link reset password telah dikirim.');
     }
@@ -185,17 +168,14 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'buyer', // Default role for registration
             'is_active' => false,
-            // 'is_subscribed' => $request->has('is_subscribed'),
+            'is_subscribed' => $request->has('is_subscribed'),
             'verification_token' => $token,
         ]);
 
-        Mail::send('auth.emails.verify-email', [
+        MailHelper::send($user->email, 'Verifikasi Email Anda', 'auth.emails.verify-email', [
             'name' => $user->name,
             'verificationLink' => route('verify.email', $token)
-        ], function ($message) use ($user) {
-            $message->to($user->email);
-            $message->subject('Verifikasi Email Anda');
-        });
+        ]);
 
         return redirect()->route('email.sent')->with('email', $request->email);
     }
@@ -248,13 +228,10 @@ class AuthController extends Controller
             $user->save();
         }
 
-        Mail::send('auth.emails.verify-email', [
+        MailHelper::send($user->email, 'Verifikasi Email Anda', 'auth.emails.verify-email', [
             'name' => $user->name,
             'verificationLink' => route('verify.email', $token)
-        ], function ($message) use ($user) {
-            $message->to($user->email);
-            $message->subject('Verifikasi Email Anda');
-        });
+        ]);
 
         return back()->with('message', 'Link verifikasi baru telah dikirim ke email Anda.')->with('email', $email);
     }

@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            $table->foreignId('product_id')->nullable()->after('message')->constrained('products')->onDelete('set null');
-        });
+        if (!Schema::hasColumn('messages', 'product_id')) {
+            Schema::table('messages', function (Blueprint $table) {
+                $table->foreignId('product_id')->nullable()->after('message')->constrained('products')->onDelete('set null');
+            });
+        }
     }
 
     /**
