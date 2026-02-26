@@ -242,4 +242,36 @@ class SellerOrderController extends Controller
 
         return back()->with('success', 'Nomor resi berhasil diupdate.');
     }
+
+    /**
+     * Finalize COD order after buyer confirmation
+     */
+    public function finalizeCodOrder($uuid)
+    {
+        $sellerId = Auth::id();
+
+        $order = Order::where('uuid', $uuid)
+            ->whereHas('items', function ($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId);
+            })
+            ->firstOrFail();
+
+        // Validate this is a COD order
+        if ($order->payment_method !== 'cod') {
+            return back()->with('error', 'Hanya pesanan COD yang dapat difinalisasi dengan cara ini.');
+        }
+
+        // Check buyer has confirmed
+        if ($order->status !== 'shipped' || !$order->buyer_confirmed_at) {
+            return back()->with('error', 'Pembeli belum mengkonfirmasi penerimaan produk.');
+        }
+
+        $order->update([
+            'status' => 'completed',
+            'seller_confirmed_at' => now(),
+            'completed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Pesanan COD berhasil difinalisasi. Dana siap dicairkan.');
+    }
 }
