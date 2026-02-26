@@ -71,11 +71,11 @@ class CheckoutController extends Controller
 
             $cartItems = DB::table('cart_items')
                 ->join('products', 'products.id', '=', 'cart_items.product_id')
-                ->join('stores', 'stores.id', '=', 'products.store_id')
+                ->join('users', 'users.id', '=', 'products.user_id')
                 ->where('cart_items.cart_id', $cart->id)
                 ->select(
                     'cart_items.*',
-                    'stores.user_id as seller_id',
+                    'users.id as seller_id',
                     'products.name as product_name',
                     'products.stock as product_stock'
                 )
@@ -89,15 +89,19 @@ class CheckoutController extends Controller
             foreach ($cartItems as $item) {
                 if ($item->quantity > $item->product_stock) {
                     DB::rollBack();
-                    return back()->with('error', 
+                    return back()->with(
+                        'error',
                         "Stok produk '{$item->product_name}' tidak mencukupi. " .
-                        "Stok tersedia: {$item->product_stock}, diminta: {$item->quantity}");
+                        "Stok tersedia: {$item->product_stock}, diminta: {$item->quantity}"
+                    );
                 }
-                
+
                 if ($item->product_stock < 1) {
                     DB::rollBack();
-                    return back()->with('error', 
-                        "Produk '{$item->product_name}' sedang tidak tersedia.");
+                    return back()->with(
+                        'error',
+                        "Produk '{$item->product_name}' sedang tidak tersedia."
+                    );
                 }
             }
 
@@ -137,7 +141,7 @@ class CheckoutController extends Controller
                     'price' => $item->price,
                     'subtotal' => $item->price * $item->quantity,
                 ]);
-                
+
                 // Reduce stock
                 DB::table('products')
                     ->where('id', $item->product_id)
@@ -236,15 +240,37 @@ class CheckoutController extends Controller
         $signature = hash(
             'sha512',
             $request->order_id .
-                $request->status_code .
-                $request->gross_amount .
-                $serverKey
+            $request->status_code .
+            $request->gross_amount .
+            $serverKey
         );
 
         if ($signature !== $request->signature_key) {
             abort(403);
         }
 
+        // Check if it's a subscription payment
+        if (Str::startsWith($request->order_id, 'SUB-')) {
+            $subscription = \App\Models\Subscription::where('order_id', $request->order_id)->first();
+
+            if ($subscription && $request->transaction_status === 'settlement') {
+                $subscription->update([
+                    'status' => 'success'
+                ]);
+
+                \App\Models\User::where('id', $subscription->user_id)->update([
+                    'is_subscribed' => true
+                ]);
+            } else if ($subscription && in_array($request->transaction_status, ['cancel', 'deny', 'expire'])) {
+                $subscription->update([
+                    'status' => 'failed'
+                ]);
+            }
+
+            return response()->json(['status' => 'ok']);
+        }
+
+        // Handle regular product order payment
         $orderId = str_replace('ORD-', '', $request->order_id);
 
         if ($request->transaction_status === 'settlement') {
@@ -262,11 +288,11 @@ class CheckoutController extends Controller
             if ($order) {
                 $orderItems = DB::table('order_items')
                     ->join('products', 'products.id', '=', 'order_items.product_id')
-                    ->join('stores', 'stores.id', '=', 'products.store_id')
+                    ->join('users', 'users.id', '=', 'products.user_id')
                     ->where('order_items.order_id', $orderId)
                     ->select(
                         'order_items.*',
-                        'stores.user_id as seller_id',
+                        'users.id as seller_id',
                         'products.name as product_name'
                     )
                     ->get();
@@ -277,6 +303,8 @@ class CheckoutController extends Controller
                 }
             }
         }
+
+        return response()->json(['status' => 'ok']);
     }
 
     /**

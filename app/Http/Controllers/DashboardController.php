@@ -107,19 +107,13 @@ class DashboardController extends Controller
                 });
 
             // Seller's products stock
-            $store = \App\Models\Store::where('user_id', $user->id)->first();
-            $productsStock = collect([]);
-            $outOfStock = 0;
-
-            if ($store) {
-                $productsStock = Products::where('store_id', $store->id)
-                    ->latest()
-                    ->take(5)
-                    ->get();
-                $outOfStock = Products::where('store_id', $store->id)
-                    ->where('stock', '<=', 0)
-                    ->count();
-            }
+            $productsStock = Products::where('user_id', $user->id)
+                ->latest()
+                ->take(5)
+                ->get();
+            $outOfStock = Products::where('user_id', $user->id)
+                ->where('stock', '<=', 0)
+                ->count();
 
             // Recent orders for this seller
             $recentOrders = Order::whereHas('items', function ($query) use ($sellerId) {

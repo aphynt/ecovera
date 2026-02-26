@@ -63,4 +63,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function products()
+    {
+        return $this->hasMany(Products::class, 'user_id');
+    }
+
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class, 'user_id')->where('status', 'success');
+    }
 }

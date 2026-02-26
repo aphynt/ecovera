@@ -12,7 +12,7 @@ use App\Http\Controllers\MailerController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\StoreController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AdminReturnController;
@@ -86,13 +86,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     //Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
-    //Store
-    Route::get('/store', [StoreController::class, 'index'])->name('store');
-    Route::get('/store/insert', [StoreController::class, 'insert'])->name('store.insert');
-    Route::post('/store/store', [StoreController::class, 'create'])->name('store.create');
-    Route::get('/store/edit/{uuid}', [StoreController::class, 'edit'])->name('store.edit');
-    Route::put('/store/update/{uuid}', [StoreController::class, 'update'])->name('store.update');
-    Route::put('/store/verify/{uuid}', [StoreController::class, 'verify'])->name('store.verify');
 
     //Category Product
     Route::get('/category', [CategoryProductController::class, 'index'])->name('category');
@@ -140,12 +133,9 @@ Route::middleware(['auth'])->prefix('seller')->name('seller.')->group(function (
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
-    // Store Management
-    Route::get('/store', [StoreController::class, 'index'])->name('store');
-    Route::get('/store/insert', [StoreController::class, 'insert'])->name('store.insert');
-    Route::post('/store/store', [StoreController::class, 'create'])->name('store.create');
-    Route::get('/store/edit/{uuid}', [StoreController::class, 'edit'])->name('store.edit');
-    Route::put('/store/update/{uuid}', [StoreController::class, 'update'])->name('store.update');
+    // Subscription Management
+    Route::get('/subscription', [SubscriptionController::class, 'index'])->name('subscription.index');
+    Route::post('/subscription/process', [SubscriptionController::class, 'subscribe'])->name('subscription.process');
 
     // Category - View Only for Seller
     Route::get('/category', [CategoryProductController::class, 'index'])->name('category');

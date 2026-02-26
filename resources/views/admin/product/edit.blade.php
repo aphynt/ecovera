@@ -52,18 +52,6 @@
                                            {{ $data['isReadOnly'] ? 'readonly' : '' }}>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label">Toko</label>
-                                    <select name="store_id" class="form-select"
-                                            {{ $data['isReadOnly'] ? 'disabled' : '' }}>
-                                        @foreach ($data['stores'] as $store)
-                                            <option value="{{ $store->id }}"
-                                                {{ $data['product']->store_id == $store->id ? 'selected' : '' }}>
-                                                {{ $store->store_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
 
                                 <div class="col-md-6">
                                     <label class="form-label">Kategori</label>

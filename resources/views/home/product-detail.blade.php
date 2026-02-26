@@ -31,8 +31,7 @@
                             style="--cz-aspect-ratio: calc(500 / 500 * 100%)">
                             <img id="mainImage" src="{{ $data['product']->primaryImage
     ? asset('storage/' . $data['product']->primaryImage->image_url)
-    : asset('logo/logo.png') }}" alt="{{ $data['product']->name }}"
-                                class="object-fit-contain">
+    : asset('logo/logo.png') }}" alt="{{ $data['product']->name }}" class="object-fit-contain">
                         </div>
                     </div>
 
@@ -93,18 +92,18 @@
                             <span class="text-body-secondary me-2">Stok:</span>
                             <span class="fw-medium">{{ $data['product']->stock }} unit</span>
                         </div>
-                        @if($data['product']->store)
+                        @if($data['product']->user)
                             <div class="d-flex align-items-center mb-2">
                                 <span class="text-body-secondary me-2">Pemilik:</span>
-                                <span class="fw-medium">{{ $data['product']->store->owner_name ?? 'Pyo' }}</span>
+                                <span class="fw-medium">{{ $data['product']->user->name ?? 'Pyo' }}</span>
                             </div>
                         @endif
                     </div>
 
                     <!-- Add to cart button -->
                     <div class="d-flex gap-2 mb-4">
-                        @if(auth()->check() && $data['product']->store && auth()->id() !== $data['product']->store->user_id)
-                            <a href="{{ route('chat.show', ['id' => $data['product']->store->user_id, 'product_id' => $data['product']->id]) }}"
+                        @if(auth()->check() && $data['product']->user && auth()->id() !== $data['product']->user->id)
+                            <a href="{{ route('chat.show', ['id' => $data['product']->user->id, 'product_id' => $data['product']->id]) }}"
                                 class="btn btn-secondary btn-lg btn-icon" style="width: 3.5rem; flex-shrink: 0;"
                                 title="Chat Penjual">
                                 <i class="ci-chat fs-xl"></i>

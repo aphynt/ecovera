@@ -42,20 +42,12 @@
                     </li>
                 @endif
 
-                <li class="menu-title mt-2">Store</li>
-
-                @if (Auth::user()->role == 'admin')
+                @if (Auth::user()->role == 'seller')
+                    <li class="menu-title mt-2">Premium</li>
                     <li>
-                        <a href="{{ route('admin.store') }}" class="tp-link">
-                            <i data-feather="shopping-cart"></i>
-                            <span> Toko </span>
-                        </a>
-                    </li>
-                @else
-                    <li>
-                        <a href="{{ route('seller.store') }}" class="tp-link">
-                            <i data-feather="shopping-cart"></i>
-                            <span> Toko </span>
+                        <a href="{{ route('seller.subscription.index') }}" class="tp-link">
+                            <i data-feather="award"></i>
+                            <span> Berlangganan </span>
                         </a>
                     </li>
                 @endif

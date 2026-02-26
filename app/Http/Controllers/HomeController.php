@@ -68,15 +68,19 @@ class HomeController extends Controller
             ->get();
 
         $productsQuery = Products::with(['primaryImage', 'category'])
-            ->where('status', 'active');
+            ->join('users', 'products.user_id', '=', 'users.id')
+            ->select('products.*')
+            ->where('products.status', 'active');
 
         // Search functionality
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $productsQuery->where('name', 'like', "%{$search}%");
+            $productsQuery->where('products.name', 'like', "%{$search}%");
         }
 
-        $products = $productsQuery->orderBy('created_at', 'desc')
+        $products = $productsQuery
+            ->orderBy('users.is_subscribed', 'desc')
+            ->orderBy('products.created_at', 'desc')
             ->paginate(12)
             ->appends(['search' => $request->search]);
 
@@ -106,16 +110,20 @@ class HomeController extends Controller
             ->get();
 
         $productsQuery = Products::with(['primaryImage', 'category'])
-            ->where('category_id', $category->id)
-            ->where('status', 'active');
+            ->join('users', 'products.user_id', '=', 'users.id')
+            ->select('products.*')
+            ->where('products.category_id', $category->id)
+            ->where('products.status', 'active');
 
         // Search functionality
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $productsQuery->where('name', 'like', "%{$search}%");
+            $productsQuery->where('products.name', 'like', "%{$search}%");
         }
 
-        $products = $productsQuery->orderBy('created_at', 'desc')
+        $products = $productsQuery
+            ->orderBy('users.is_subscribed', 'desc')
+            ->orderBy('products.created_at', 'desc')
             ->paginate(12)
             ->appends(['search' => $request->search]);
 
@@ -132,7 +140,7 @@ class HomeController extends Controller
 
     public function productDetail($uuid)
     {
-        $product = Products::with(['primaryImage', 'category', 'store', 'images'])
+        $product = Products::with(['primaryImage', 'category', 'user', 'images'])
             ->where('uuid', $uuid)
             ->where('status', 'active')
             ->firstOrFail();

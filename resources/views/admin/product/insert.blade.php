@@ -11,15 +11,15 @@
         <div class="py-3 d-flex align-items-center justify-content-between">
             <h4 class="fs-18 fw-semibold m-0">Tambah Produk</h4>
             @if(Auth::user()->role === 'admin')
-            <a href="{{ route('admin.product') }}" class="btn btn-light btn-sm">
-                <i data-feather="arrow-left" class="icon-xs"></i>
-                Kembali
-            </a>
+                <a href="{{ route('admin.product') }}" class="btn btn-light btn-sm">
+                    <i data-feather="arrow-left" class="icon-xs"></i>
+                    Kembali
+                </a>
             @else
-            <a href="{{ route('seller.product') }}" class="btn btn-light btn-sm">
-                <i data-feather="arrow-left" class="icon-xs"></i>
-                Kembali
-            </a>
+                <a href="{{ route('seller.product') }}" class="btn btn-light btn-sm">
+                    <i data-feather="arrow-left" class="icon-xs"></i>
+                    Kembali
+                </a>
             @endif
         </div>
 
@@ -30,11 +30,8 @@
                     <div class="card-body">
 
                         @if(Auth::user()->role === 'admin')
-                        <form action="{{ route('admin.product.create') }}"
-                        @else
-                        <form action="{{ route('seller.product.create') }}"
-                        @endif
-                            method="POST"
+                        <form action="{{ route('admin.product.create') }}" @else <form
+                        action="{{ route('seller.product.create') }}" @endif method="POST"
                             enctype="multipart/form-data">
                             @csrf
 
@@ -46,16 +43,6 @@
                                     <input type="text" name="name" class="form-control" required>
                                 </div>
 
-                                <!-- Store -->
-                                <div class="col-md-6">
-                                    <label class="form-label">Toko</label>
-                                    <select name="store_id" class="form-select" required>
-                                        <option value="">-- Pilih Toko --</option>
-                                        @foreach ($data['stores'] as $store)
-                                            <option value="{{ $store->id }}">{{ $store->store_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
 
                                 <!-- Kategori -->
                                 <div class="col-md-6">
@@ -94,8 +81,8 @@
                                 <!-- Upload Gambar -->
                                 <div class="col-md-12">
                                     <label class="form-label">Gambar Produk</label>
-                                    <input type="file" name="images[]" id="imagesInput"
-                                        class="form-control" accept="image/*" multiple>
+                                    <input type="file" name="images[]" id="imagesInput" class="form-control"
+                                        accept="image/*" multiple>
                                 </div>
 
                                 <!-- Pilih Gambar Utama -->
@@ -109,8 +96,8 @@
                                 <!-- Upload Video -->
                                 <div class="col-md-6">
                                     <label class="form-label">Video Produk (Opsional)</label>
-                                    <input type="file" name="video" id="videoInput"
-                                        class="form-control" accept="video/mp4,video/mov">
+                                    <input type="file" name="video" id="videoInput" class="form-control"
+                                        accept="video/mp4,video/mov">
                                 </div>
 
                                 <!-- Preview -->
@@ -142,25 +129,25 @@
     </div><!-- container-fluid -->
 </div>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
-    const imagesInput = document.getElementById('imagesInput');
-    const imagePreview = document.getElementById('imagePreview');
-    const primarySelect = document.querySelector('[name="primary_image_index"]');
+        const imagesInput = document.getElementById('imagesInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const primarySelect = document.querySelector('[name="primary_image_index"]');
 
-    imagesInput.addEventListener('change', function () {
+        imagesInput.addEventListener('change', function () {
 
-        imagePreview.innerHTML = '';
-        primarySelect.innerHTML = '';
+            imagePreview.innerHTML = '';
+            primarySelect.innerHTML = '';
 
-        Array.from(this.files).forEach((file, index) => {
+            Array.from(this.files).forEach((file, index) => {
 
-            if (!file.type.startsWith('image/')) return;
+                if (!file.type.startsWith('image/')) return;
 
-            const reader = new FileReader();
-            reader.onload = e => {
+                const reader = new FileReader();
+                reader.onload = e => {
 
-                imagePreview.innerHTML += `
+                    imagePreview.innerHTML += `
                     <div class="col-md-3">
                         <div class="card border shadow-sm">
                             <img src="${e.target.result}"
@@ -171,31 +158,31 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                     </div>
                 `;
-            };
+                };
 
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
 
-            primarySelect.innerHTML += `
+                primarySelect.innerHTML += `
                 <option value="${index}">Gambar ${index + 1}</option>
             `;
+            });
         });
-    });
 
-    const videoInput = document.getElementById('videoInput');
-    const videoPreview = document.getElementById('videoPreview');
+        const videoInput = document.getElementById('videoInput');
+        const videoPreview = document.getElementById('videoPreview');
 
-    videoInput.addEventListener('change', function () {
-        videoPreview.innerHTML = '';
-        if (!this.files[0]) return;
+        videoInput.addEventListener('change', function () {
+            videoPreview.innerHTML = '';
+            if (!this.files[0]) return;
 
-        videoPreview.innerHTML = `
+            videoPreview.innerHTML = `
             <video controls width="100%" style="max-height:300px">
                 <source src="${URL.createObjectURL(this.files[0])}">
             </video>
         `;
-    });
+        });
 
-});
+    });
 </script>
 
 

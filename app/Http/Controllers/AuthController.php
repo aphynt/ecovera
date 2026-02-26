@@ -168,7 +168,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'buyer', // Default role for registration
             'is_active' => false,
-            'is_subscribed' => $request->has('is_subscribed'),
+            'is_subscribed' => false,
             'verification_token' => $token,
         ]);
 

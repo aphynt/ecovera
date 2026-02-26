@@ -41,7 +41,6 @@
                                         <tr>
                                             <th scope="col" class="cursor-pointer">#</th>
                                             <th scope="col" class="cursor-pointer">Produk</th>
-                                            <th scope="col" class="cursor-pointer">Toko</th>
                                             <th scope="col" class="cursor-pointer">Kategori</th>
                                             <th scope="col" class="cursor-pointer">Harga</th>
                                             <th scope="col" class="cursor-pointer">Stok</th>
@@ -61,10 +60,6 @@
                                                 <small class="text-muted">{{ $product->slug }}</small>
                                             </td>
 
-                                            <!-- Store -->
-                                            <td>
-                                                {{ $product->store_name ?? '-' }}
-                                            </td>
 
                                             <!-- Category -->
                                             <td>
@@ -99,9 +94,6 @@
                                                     {{ ucfirst($product->status) }}
                                                 </span>
 
-                                                @endif
-                                            </td>
-
                                             <!-- Action -->
                                             <td>
                                                 <div class="d-flex gap-1">
@@ -118,11 +110,7 @@
                                                     @endif
 
                                                     @if (
-                                                        $product->status === 'inactive' &&
-                                                        (
-                                                            Auth::user()->role === 'admin' ||
-                                                            $product->user_id === Auth::id()
-                                                        )
+                                                        $product->status === 'inactive'
                                                     )
                                                         <button class="btn btn-sm bg-danger-subtle btn-toggle-user"
                                                                 onclick="deleteProduct('{{ $product->uuid }}', '{{ $product->name }}')">
