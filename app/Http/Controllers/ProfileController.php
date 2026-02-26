@@ -257,6 +257,34 @@ class ProfileController extends Controller
             ->with('success', 'Pesanan telah selesai.');
     }
 
+    /**
+     * Buyer confirms COD order after meeting and checking products
+     */
+    public function confirmCodOrder($uuid)
+    {
+        $order = Order::where('uuid', $uuid)
+            ->where('buyer_id', Auth::id())
+            ->where('payment_method', 'cod')
+            ->where('status', 'processed')
+            ->firstOrFail();
+
+        $order->update([
+            'status' => 'shipped',
+            'buyer_confirmed_at' => now(),
+        ]);
+
+        // Update payment status
+        DB::table('payments')
+            ->where('order_id', $order->id)
+            ->update([
+                'payment_status' => 'success',
+                'paid_at' => now(),
+            ]);
+
+        return redirect()->route('buyer.orders.detail', $uuid)
+            ->with('success', 'Terima kasih! Anda telah mengkonfirmasi bahwa produk sudah diterima dan sesuai. Menunggu konfirmasi akhir dari penjual.');
+    }
+
     public function orderReturn(Request $request, $uuid)
     {
         $request->validate([

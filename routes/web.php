@@ -164,6 +164,7 @@ Route::middleware(['auth'])->prefix('seller')->name('seller.')->group(function (
     Route::patch('/orders/{uuid}/process', [SellerOrderController::class, 'process'])->name('orders.process');
     Route::patch('/orders/{uuid}/ship', [SellerOrderController::class, 'ship'])->name('orders.ship');
     Route::patch('/orders/{uuid}/update-tracking', [SellerOrderController::class, 'updateTracking'])->name('orders.update-tracking');
+    Route::patch('/orders/{uuid}/finalize-cod', [SellerOrderController::class, 'finalizeCodOrder'])->name('orders.finalize-cod');
 
     // Return Management
     Route::get('/returns', [SellerReturnController::class, 'index'])->name('returns.index');
@@ -200,6 +201,7 @@ Route::middleware(['auth'])->prefix('buyer')->name('buyer.')->group(function () 
     Route::patch('/order/{uuid}/simulate-pay', [ProfileController::class, 'simulatePay'])->name('orders.simulatePay');
     Route::patch('/order/{uuid}/cancel', [ProfileController::class, 'orderCancel'])->name('orders.cancel');
     Route::patch('/order/{uuid}/complete', [ProfileController::class, 'orderComplete'])->name('orders.complete');
+    Route::patch('/order/{uuid}/confirm-cod', [ProfileController::class, 'confirmCodOrder'])->name('orders.confirm-cod');
     Route::post('/order/{uuid}/return', [ProfileController::class, 'orderReturn'])->name('orders.return');
     Route::get('/my-returns', [ProfileController::class, 'myReturns'])->name('my.returns');
 

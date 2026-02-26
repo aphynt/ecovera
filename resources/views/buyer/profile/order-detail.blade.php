@@ -66,6 +66,13 @@
                             </div>
                         </div>
 
+                        @if($data['order']->payment_method === 'cod' && $data['order']->status === 'completed' && !$data['order']->buyer_confirmed_at)
+                        <div class="alert alert-warning mb-3">
+                            <small><i class="ci-clock me-1"></i><strong>Pesanan diselesaikan otomatis.</strong><br>
+                            Karena tidak ada konfirmasi dalam 3 hari, sistem otomatis menyelesaikan pesanan ini dan dana telah dicairkan ke penjual.</small>
+                        </div>
+                        @endif
+
                         <hr>
 
                         <h6 class="mb-3">Produk yang Dibeli</h6>
@@ -115,6 +122,31 @@
                         <a href="{{ route('buyer.orders.payment', $data['order']->uuid) }}" class="btn btn-primary w-100 mb-2">
                             <i class="ci-credit-card me-2"></i>Bayar Sekarang
                         </a>
+                        @elseif($data['order']->status === 'processed' && $data['order']->payment_method === 'cod')
+                        <div class="alert alert-info mb-3">
+                            <small><i class="ci-info-circle me-1"></i><strong>COD - Silakan chat penjual untuk ketemuan.</strong><br>
+                            Setelah ketemu dan cek barang OK, konfirmasi pesanan di bawah ini.</small>
+                        </div>
+                        <form action="{{ route('buyer.orders.confirm-cod', $data['order']->uuid) }}" method="POST" 
+                            onsubmit="return confirm('Apakah Anda yakin barang sudah diterima dan sesuai?')">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn btn-success w-100 mb-2">
+                                <i class="ci-check me-2"></i>Konfirmasi Barang Diterima
+                            </button>
+                        </form>
+                        @elseif($data['order']->status === 'shipped' && $data['order']->payment_method === 'cod')
+                        <div class="alert alert-success mb-3">
+                            <small><i class="ci-check-circle me-1"></i><strong>Anda sudah konfirmasi.</strong><br>
+                            Menunggu konfirmasi akhir dari penjual untuk pencairan dana.</small>
+                        </div>
+                        @elseif($data['order']->status === 'completed' && $data['order']->payment_method === 'cod' && !$data['order']->buyer_confirmed_at)
+                        <div class="alert alert-warning mb-3">
+                            <small><i class="ci-info-circle me-1"></i><strong>Pesanan diselesaikan otomatis oleh sistem.</strong><br>
+                            Anda tidak mengkonfirmasi pesanan dalam 3 hari, sehingga sistem otomatis menyelesaikan transaksi dan dana telah dicairkan ke penjual.
+                            <br><br>
+                            <strong>Catatan:</strong> Untuk pesanan COD berikutnya, harap konfirmasi setelah barang diterima agar transaksi lebih transparan.</small>
+                        </div>
                         @elseif($data['order']->status === 'shipped')
                         <form action="{{ route('buyer.orders.complete', $data['order']->uuid) }}" method="POST">
                             @csrf

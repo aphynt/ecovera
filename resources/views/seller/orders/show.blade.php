@@ -91,6 +91,12 @@
                                 </table>
                             </div>
                         </div>
+                        @if($order->payment_method === 'cod' && $order->status === 'completed' && !$order->buyer_confirmed_at)
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i data-feather="alert-triangle" class="icon-xs me-1"></i>
+                            <strong>Info Auto-Complete:</strong> Pesanan ini diselesaikan otomatis oleh sistem karena pembeli tidak mengkonfirmasi dalam 3 hari. Dana telah dicairkan.
+                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -242,6 +248,11 @@
                                     <i data-feather="package" class="icon-xs me-1"></i> Proses Pesanan
                                 </button>
                             </form>
+                        @elseif($order->status == 'processed' && $order->payment_method === 'cod')
+                            <div class="alert alert-info">
+                                <i data-feather="info" class="icon-xs me-1"></i>
+                                <strong>Pesanan COD.</strong> Chat pembeli untuk ketemuan. Menunggu konfirmasi dari pembeli setelah cek barang.
+                            </div>
                         @elseif($order->status == 'processed')
                             <div class="alert alert-warning">
                                 <i data-feather="alert-circle" class="icon-xs me-1"></i>
@@ -250,6 +261,19 @@
                             <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#shipModal">
                                 <i data-feather="truck" class="icon-xs me-1"></i> Kirim Pesanan
                             </button>
+                        @elseif($order->status == 'shipped' && $order->payment_method === 'cod' && $order->buyer_confirmed_at)
+                            <div class="alert alert-success mb-3">
+                                <i data-feather="check-circle" class="icon-xs me-1"></i>
+                                <strong>Pembeli sudah konfirmasi barang diterima!</strong> Silakan finalisasi pesanan untuk mencairkan dana.
+                            </div>
+                            <form action="{{ route('seller.orders.finalize-cod', $order->uuid) }}" method="POST" 
+                                onsubmit="return confirm('Finalisasi pesanan COD ini? Dana akan siap dicairkan.')">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn btn-success w-100 mb-2">
+                                    <i data-feather="check-circle" class="icon-xs me-1"></i> Finalisasi Pesanan COD
+                                </button>
+                            </form>
                         @elseif($order->status == 'shipped')
                             <div class="alert alert-primary">
                                 <i data-feather="truck" class="icon-xs me-1"></i>
@@ -259,10 +283,18 @@
                                 <i data-feather="edit" class="icon-xs me-1"></i> Update Nomor Resi
                             </button>
                         @elseif($order->status == 'completed')
+                            @if($order->payment_method === 'cod' && !$order->buyer_confirmed_at)
+                            <div class="alert alert-warning">
+                                <i data-feather="clock" class="icon-xs me-1"></i>
+                                <strong>Pesanan diselesaikan otomatis oleh sistem.</strong><br>
+                                Pembeli tidak mengkonfirmasi dalam 3 hari, sehingga pesanan otomatis selesai dan dana telah dicairkan.
+                            </div>
+                            @else
                             <div class="alert alert-success">
                                 <i data-feather="check-circle" class="icon-xs me-1"></i>
                                 Pesanan telah selesai.
                             </div>
+                            @endif
                         @elseif($order->status == 'cancelled')
                             <div class="alert alert-danger">
                                 <i data-feather="x-circle" class="icon-xs me-1"></i>
